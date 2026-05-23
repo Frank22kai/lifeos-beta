@@ -297,6 +297,7 @@ h2{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:14px}
 // ── DATA ─────────────────────────────────────────────────
 const DB_KEY = "lifeos-beta-v2";
 const ADMIN_PASS = "lifeos2026";
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzhNaYBe79EjKaxysbhKhQE4OU3oQSt1dcb-uxjLboVrpZsWN-VBY8TDPtESkPYYCat/exec";
 
 const MODS = [
   {id:"finanzas",icon:"💰",label:"Finanzas",  color:"#00E5A0"},
@@ -313,8 +314,44 @@ const STATUS = {
   inactivo:    {label:"Inactivo",    color:"#6B7280",bg:"rgba(107,114,128,.12)"},
 };
 
-function loadDB(){ try{return JSON.parse(localStorage.getItem(DB_KEY)||'{"submissions":[]}')}catch{return{submissions:[]}} }
-function saveDB(d){ localStorage.setItem(DB_KEY,JSON.stringify(d)) }
+// Cache local
+function loadCache(){ try{return JSON.parse(localStorage.getItem(DB_KEY)||'{"submissions":[]}')}catch{return{submissions:[]}} }
+function saveCache(d){ localStorage.setItem(DB_KEY,JSON.stringify(d)) }
+
+// Carga desde Google Sheets (usado en admin)
+async function loadDB(){
+  try{
+    const res = await fetch(SHEETS_URL+"?nocache="+Date.now());
+    const json = await res.json();
+    if(json.ok && json.data){
+      const db = {submissions: json.data.filter(r=>r.id)};
+      saveCache(db); return db;
+    }
+  }catch(e){ console.warn("Sheets offline, usando cache",e); }
+  return loadCache();
+}
+
+// Guarda en Sheets + cache
+async function saveDB(d){
+  saveCache(d);
+  const entry = d.submissions[d.submissions.length-1];
+  if(!entry) return;
+  try{
+    await fetch(SHEETS_URL,{method:"POST",mode:"no-cors",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({action:"save",...entry})});
+  }catch(e){ console.warn("Error Sheets save:",e); }
+}
+
+// Actualiza campo en Sheets
+async function patchSheets(action,id,val){
+  const key = action==="updateStatus"?"status":"notas";
+  try{
+    await fetch(SHEETS_URL,{method:"POST",mode:"no-cors",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({action,id,[key]:val})});
+  }catch(e){ console.warn("Error Sheets patch:",e); }
+}
 
 // ── VIEWS ────────────────────────────────────────────────
 function show(id){
@@ -394,12 +431,12 @@ function submitForm(){
     notas: "",
   };
 
-  const db = loadDB();
+  const db = loadCache();
   db.submissions.push(entry);
-  saveDB(db);
-
-  document.getElementById("success-name").textContent = entry.nombre;
-  setTimeout(()=>{ show("view-success"); btn.disabled=false; btn.textContent="¡Estoy dentro! →"; }, 500);
+  saveDB(db).then(()=>{
+    document.getElementById("success-name").textContent = entry.nombre;
+    show("view-success"); btn.disabled=false; btn.textContent="¡Estoy dentro! →";
+  });
 }
 
 // ── ADMIN ────────────────────────────────────────────────
@@ -410,7 +447,7 @@ function quickAdmin(){
 
 function tryLogin(){
   const p = document.getElementById("login-pass").value;
-  if(p===ADMIN_PASS){ document.getElementById("login-err").classList.add("hidden"); loadAdmin(); show("view-admin"); }
+  if(p===ADMIN_PASS){ document.getElementById("login-err").classList.add("hidden"); show("view-admin"); toast("⏳ Cargando datos..."); loadDB().then(db=>{ window._db=db; loadAdmin(); }); }
   else { document.getElementById("login-err").classList.remove("hidden"); }
 }
 
@@ -424,8 +461,9 @@ function adminTab(tab){
   if(tab==="testers") loadTesters();
 }
 
-function loadAdmin(){
-  const db = loadDB();
+async function loadAdmin(){
+  const db = await loadDB();
+  window._db = db;
   const subs = db.submissions;
   const avg = subs.length ? Math.round(subs.reduce((a,s)=>a+s.score,0)/subs.length) : 0;
 
@@ -483,7 +521,7 @@ function loadAdmin(){
 }
 
 function loadTesters(){
-  const db = loadDB();
+  const db = window._db || loadCache();
   const subs = db.submissions;
   document.getElementById("testers-count").textContent = subs.length + " registrados";
   document.getElementById("testers-list").innerHTML = subs.length ? [...subs].reverse().map(s=>`
@@ -508,7 +546,7 @@ function selectTester(id){
   const ti = document.getElementById("ti-"+id);
   if(ti) ti.classList.add("active");
 
-  const db = loadDB();
+  const db = window._db || loadCache();
   const s = db.submissions.find(x=>x.id===id);
   if(!s) return;
 
@@ -578,24 +616,28 @@ function selectTester(id){
     </div>`;
 }
 
-function updateStatus(id, status){
-  const db = loadDB();
+async function updateStatus(id, status){
+  const db = loadCache();
   db.submissions = db.submissions.map(s=>s.id===id?{...s,status}:s);
-  saveDB(db); loadTesters(); selectTester(id); toast("Estado actualizado ✓");
+  saveCache(db);
+  await patchSheets("updateStatus",id,status);
+  loadTesters(); selectTester(id); toast("Estado actualizado ✓");
 }
 
-function saveNotas(id){
+async function saveNotas(id){
   const notas = document.getElementById("notas-"+id).value;
-  const db = loadDB();
+  const db = loadCache();
   db.submissions = db.submissions.map(s=>s.id===id?{...s,notas}:s);
-  saveDB(db); toast("Notas guardadas ✓");
+  saveCache(db);
+  await patchSheets("updateNotas",id,notas);
+  toast("Notas guardadas ✓");
 }
 
 function deleteTester(id){
   if(!confirm("¿Eliminar este beta tester?")) return;
-  const db = loadDB();
+  const db = loadCache();
   db.submissions = db.submissions.filter(s=>s.id!==id);
-  saveDB(db); document.getElementById("tester-detail").innerHTML=""; loadTesters(); loadAdmin(); toast("Eliminado");
+  saveCache(db); document.getElementById("tester-detail").innerHTML=""; loadTesters(); loadAdmin(); toast("Eliminado");
 }
 
 // ── TOAST ────────────────────────────────────────────────
