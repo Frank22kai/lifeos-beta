@@ -4,632 +4,611 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LifeOS Beta</title>
-<meta name="description" content="Sistema de onboarding y gestión de beta testers LifeOS">
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:#07090F;color:#F1EDE6;overflow-x:hidden}
-input,textarea,select{font-family:'DM Sans',sans-serif}
-input[type=range]{accent-color:#00E5A0;cursor:pointer;width:100%}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#1f2937;border-radius:4px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+:root{
+  --bg:#07090F;--card:#0E1420;--border:rgba(255,255,255,.07);
+  --accent:#00E5A0;--purple:#A78BFA;--coral:#FF6B6B;--gold:#FCD34D;--blue:#60A5FA;
+  --white:#F1EDE6;--muted:#6B7280;--light:#C9D1D9;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+input,textarea,select,button{font-family:'DM Sans',sans-serif}
+input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#1f2937;border-radius:4px}
+.hidden{display:none!important}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:700}
+.logo span{color:var(--accent)}
+.logo small{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);font-weight:400;margin-left:6px}
+
+/* PROGRESS BAR */
+.progress{display:flex;gap:6px}
+.progress-dot{width:28px;height:4px;border-radius:4px;background:rgba(255,255,255,.1);transition:background .3s}
+.progress-dot.on{background:var(--accent)}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:14px}
+
+/* FORM */
+.field{margin-bottom:18px}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--light);margin-bottom:6px}
+.field label .req{color:var(--accent)}
+.inp{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:11px 15px;color:var(--white);font-size:14px;outline:none;transition:border-color .2s}
+.inp:focus{border-color:rgba(0,229,160,.4)}
+.inp::placeholder{color:var(--muted)}
+textarea.inp{resize:vertical}
+select.inp option{background:#111827}
+
+/* RANGE */
+.range-wrap{display:flex;align-items:center;gap:10px;margin-top:4px}
+.range-val{background:rgba(0,229,160,.1);color:var(--accent);font-size:13px;font-weight:700;padding:2px 10px;border-radius:50px;min-width:32px;text-align:center}
+.range-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px}
+
+/* BUTTONS */
+.btn{border:none;border-radius:50px;padding:13px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;width:100%}
+.btn-primary{background:var(--accent);color:#07090F}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,229,160,.25)}
+.btn-secondary{background:rgba(255,255,255,.05);color:var(--white);border:1px solid var(--border)!important}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+.btn-row{display:flex;gap:10px}
+.btn-row .btn:first-child{flex:1}.btn-row .btn:last-child{flex:2}
+
+/* SCORE PREVIEW */
+.score-preview{background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.score-num-big{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--accent);line-height:1}
+
+/* BADGE */
+.badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:50px}
+
+/* MOD BAR */
+.mod-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.mod-bar-label{font-size:11px;color:var(--light);width:95px;flex-shrink:0;display:flex;align-items:center;gap:4px}
+.mod-bar-track{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.mod-bar-fill{height:100%;border-radius:4px}
+.mod-bar-score{font-size:11px;font-weight:600;width:20px;text-align:right;flex-shrink:0}
+
+/* ADMIN NAV TABS */
+.admin-tabs{display:flex;gap:6px}
+.atab{background:none;border:1px solid transparent;border-radius:50px;padding:6px 14px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .2s}
+.atab.active{background:rgba(0,229,160,.1);color:var(--accent);border-color:rgba(0,229,160,.2)}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
+.kpi-n{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;line-height:1}
+.kpi-l{font-size:11px;color:var(--muted);margin-top:5px}
+
+/* TESTER LIST */
+.tester-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:border-color .2s;display:flex;align-items:center;justify-content:space-between}
+.tester-item:hover,.tester-item.active{border-color:rgba(0,229,160,.35)}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#07090F;flex-shrink:0}
+
+/* DETAIL PANEL */
+.detail-panel{animation:fadeUp .3s ease}
+.status-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.status-btn{border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);border-radius:50px;padding:4px 10px;font-size:11px;cursor:pointer;transition:all .2s}
+
+/* WA BUTTON */
+.wa-btn{display:inline-block;background:#25D366;color:#fff;border-radius:50px;padding:9px 20px;font-size:13px;font-weight:600;text-decoration:none;margin-top:6px}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--accent);color:#07090F;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:600;z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);white-space:nowrap}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ADMIN KEY */
+#admin-key-wrap{position:fixed;bottom:14px;right:14px;z-index:200}
+#admin-key{width:72px;background:rgba(14,20,32,.9);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--muted);font-size:11px;outline:none;text-align:center}
+
+/* SUCCESS */
+.success-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.success-box{text-align:center;max-width:400px;animation:fadeUp .5s ease}
+
+/* 2 COL GRID */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:600px){.two-col{grid-template-columns:1fr}.admin-tabs .atab{font-size:11px;padding:5px 10px}}
+
+/* SECTION */
+.section-wrap{max-width:560px;margin:0 auto;padding:28px 18px}
+.admin-wrap{max-width:960px;margin:0 auto;padding:24px 18px}
+.tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-weight:500;margin-bottom:8px}
+h1{font-family:'Playfair Display',serif;font-size:26px;line-height:1.2;margin-bottom:10px}
+h2{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:14px}
+.sub{color:var(--light);font-size:14px;line-height:1.65;font-weight:300;margin-bottom:24px}
 </style>
 </head>
 <body>
-<div id="root"></div>
 
-<script type="text/babel">
-const { useState, useEffect } = React;
+<!-- ═══════ TOAST ═══════ -->
+<div id="toast">✓ Guardado</div>
 
-// ── CONSTANTS ────────────────────────────────────────────
+<!-- ═══════ VIEWS ═══════ -->
+<div id="view-form">
+  <div class="nav">
+    <div class="logo">Life<span>OS</span><small>Beta</small></div>
+    <div class="progress" id="progress-dots">
+      <div class="progress-dot on"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div id="step1" class="section-wrap" style="animation:fadeUp .5s ease">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:44px;margin-bottom:12px">👋</div>
+      <h1>Bienvenido a la beta de <em style="color:var(--accent)">LifeOS</em></h1>
+      <p class="sub">Eres parte del grupo selecto que construirá el copiloto de vida más poderoso de Colombia. Este formulario toma 3 minutos.</p>
+    </div>
+    <div class="card">
+      <div class="tag">Información básica</div>
+      <div class="field"><label>¿Cómo te llamamos? <span class="req">*</span></label><input class="inp" id="f-nombre" placeholder="Tu nombre"></div>
+      <div class="field"><label>Ciudad <span class="req">*</span></label><input class="inp" id="f-ciudad" placeholder="Bogotá, Medellín, Cali..."></div>
+      <div class="field"><label>WhatsApp <span class="req">*</span></label><input class="inp" id="f-whatsapp" type="tel" placeholder="+57 300 000 0000"></div>
+      <div class="field">
+        <label>¿A qué te dedicas? <span class="req">*</span></label>
+        <select class="inp" id="f-ocupacion">
+          <option value="">Selecciona una opción</option>
+          <option>Empleado en empresa</option>
+          <option>Emprendedor / dueño de negocio</option>
+          <option>Freelancer / independiente</option>
+          <option>Estudiante</option>
+          <option>Otro</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="goStep(2)">Continuar →</button>
+  </div>
+
+  <!-- STEP 2 -->
+  <div id="step2" class="section-wrap hidden">
+    <div class="tag">Tu score inicial</div>
+    <h2>¿Cómo estás esta semana?</h2>
+    <p class="sub" style="margin-bottom:18px">Del 1 al 10 en cada área. Sé honesto.</p>
+    <div class="card">
+      <div id="sliders-wrap"></div>
+    </div>
+    <div class="score-preview">
+      <div>
+        <div class="score-num-big" id="score-preview-num">50</div>
+        <div style="font-size:11px;color:var(--muted)">/ 100 · Score inicial</div>
+      </div>
+      <div style="font-size:13px;color:var(--light);line-height:1.5">Cada semana este número cambia con tu contexto real.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(1)">← Atrás</button>
+      <button class="btn btn-primary" onclick="goStep(3)">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div id="step3" class="section-wrap hidden">
+    <div class="tag">La pregunta más importante</div>
+    <h2>Cuéntanos qué necesitas</h2>
+    <p class="sub" style="margin-bottom:18px">Esta info personaliza todo lo que recibirás.</p>
+    <div class="card">
+      <div class="field">
+        <label>¿Cuál es tu mayor desafío de vida ahora mismo? <span class="req">*</span></label>
+        <textarea class="inp" id="f-desafio" rows="3" placeholder="Ej: no llego a fin de mes, mucho estrés, no tengo tiempo para ejercicio..."></textarea>
+      </div>
+      <div class="field">
+        <label>Si LifeOS pudiera hacer una sola cosa perfecta por ti, ¿cuál sería? <span class="req">*</span></label>
+        <textarea class="inp" id="f-wish" rows="3" placeholder="Sé específico — no hay respuesta incorrecta..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Cómo prefieres recibir tu reporte?</label>
+        <select class="inp" id="f-canal">
+          <option>WhatsApp</option><option>Email</option><option>Ambos</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(2)">← Atrás</button>
+      <button class="btn btn-primary" id="submit-btn" onclick="submitForm()">¡Estoy dentro! →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ SUCCESS ═══════ -->
+<div id="view-success" class="hidden">
+  <div class="success-wrap">
+    <div class="success-box">
+      <div style="font-size:60px;margin-bottom:18px">🎉</div>
+      <h1>¡Bienvenido/a, <em id="success-name" style="color:var(--accent)"></em>!</h1>
+      <p style="color:var(--light);font-size:14px;line-height:1.7;font-weight:300;margin:16px 0 24px">Tu perfil fue guardado. El próximo lunes recibirás tu primer score de vida por WhatsApp.</p>
+      <div class="card" style="text-align:left">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;gap:10px;font-size:13px;color:var(--light)"><span style="color:var(--accent);font-weight:700">→</span>Este domingo recibirás tu primer check-in</div>
+          <div style="display:flex;gap:10px;font-size:13px;color:var(--light)"><span style="color:var(--accent);font-weight:700">→</span>El lunes llega tu score de vida personalizado</div>
+          <div style="display:flex;gap:10px;font-size:13px;color:var(--light)"><span style="color:var(--accent);font-weight:700">→</span>Primer mes completamente gratis</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ ADMIN LOGIN ═══════ -->
+<div id="view-admin-login" class="hidden">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px">
+    <div class="card" style="max-width:320px;width:100%;text-align:center;padding:36px">
+      <div style="font-size:38px;margin-bottom:14px">🔐</div>
+      <h2>Admin LifeOS</h2>
+      <p style="font-size:13px;color:var(--muted);margin:8px 0 20px">Acceso exclusivo para el fundador</p>
+      <input type="password" id="login-pass" class="inp" placeholder="Contraseña" style="text-align:center;margin-bottom:10px">
+      <div id="login-err" class="hidden" style="color:var(--coral);font-size:12px;margin-bottom:8px">Contraseña incorrecta</div>
+      <button class="btn btn-primary" onclick="tryLogin()">Entrar →</button>
+      <div style="font-size:11px;color:var(--muted);margin-top:14px">Clave: lifeos2026</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ ADMIN PANEL ═══════ -->
+<div id="view-admin" class="hidden">
+  <div class="nav">
+    <div class="logo">Life<span>OS</span><small style="color:var(--purple)">Admin</small></div>
+    <div class="admin-tabs">
+      <button class="atab active" id="tab-dash" onclick="adminTab('dashboard')">📊 Dashboard</button>
+      <button class="atab" id="tab-testers" onclick="adminTab('testers')">👥 Beta Testers</button>
+    </div>
+    <button onclick="logout()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer">Salir</button>
+  </div>
+
+  <div class="admin-wrap">
+
+    <!-- DASHBOARD -->
+    <div id="admin-dashboard">
+      <div class="tag">Resumen general</div>
+      <h2 style="margin-bottom:20px">Tu beta en números</h2>
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="two-col">
+        <div class="card"><div class="tag">Por ocupación</div><div id="occ-chart"></div></div>
+        <div class="card"><div class="tag">Score promedio por módulo</div><div id="mod-avg-bars"></div></div>
+      </div>
+      <div class="card">
+        <div class="tag">Últimos registros</div>
+        <div id="recent-list"></div>
+      </div>
+    </div>
+
+    <!-- TESTERS -->
+    <div id="admin-testers" class="hidden">
+      <div class="tag">Beta Testers</div>
+      <h2 id="testers-count" style="margin-bottom:16px">0 registrados</h2>
+      <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:16px" id="testers-layout">
+        <div id="testers-list"></div>
+        <div id="tester-detail"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════ ADMIN KEY ═══════ -->
+<div id="admin-key-wrap">
+  <input type="password" id="admin-key" placeholder="admin" onkeydown="if(event.key==='Enter')quickAdmin()">
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────
+const DB_KEY = "lifeos-beta-v2";
 const ADMIN_PASS = "lifeos2026";
-const DB_KEY = "lifeos-beta-db-v1";
 
-const MODULOS = [
-  { id:"finanzas", icon:"💰", label:"Finanzas",      color:"#00E5A0" },
-  { id:"salud",    icon:"🏃", label:"Salud",         color:"#FF6B6B" },
-  { id:"mental",   icon:"🧘", label:"Mental",        color:"#A78BFA" },
-  { id:"trabajo",  icon:"🎯", label:"Productividad", color:"#FCD34D" },
-  { id:"habitos",  icon:"🌱", label:"Hábitos",       color:"#34D399" },
+const MODS = [
+  {id:"finanzas",icon:"💰",label:"Finanzas",  color:"#00E5A0"},
+  {id:"salud",   icon:"🏃",label:"Salud",     color:"#FF6B6B"},
+  {id:"mental",  icon:"🧘",label:"Mental",    color:"#A78BFA"},
+  {id:"trabajo", icon:"🎯",label:"Productividad",color:"#FCD34D"},
+  {id:"habitos", icon:"🌱",label:"Hábitos",   color:"#34D399"},
 ];
 
 const STATUS = {
-  nuevo:       { label:"Nuevo",        color:"#60A5FA", bg:"rgba(96,165,250,.12)"  },
-  activo:      { label:"Activo",       color:"#00E5A0", bg:"rgba(0,229,160,.12)"   },
-  seguimiento: { label:"Seguimiento",  color:"#FCD34D", bg:"rgba(252,211,77,.12)"  },
-  inactivo:    { label:"Inactivo",     color:"#6B7280", bg:"rgba(107,114,128,.12)" },
+  nuevo:       {label:"Nuevo",       color:"#60A5FA",bg:"rgba(96,165,250,.12)"},
+  activo:      {label:"Activo",      color:"#00E5A0",bg:"rgba(0,229,160,.12)"},
+  seguimiento: {label:"Seguimiento", color:"#FCD34D",bg:"rgba(252,211,77,.12)"},
+  inactivo:    {label:"Inactivo",    color:"#6B7280",bg:"rgba(107,114,128,.12)"},
 };
 
-const C = {
-  bg:"#07090F", card:"#0E1420", card2:"#111827",
-  border:"rgba(255,255,255,0.07)",
-  accent:"#00E5A0", purple:"#A78BFA", coral:"#FF6B6B",
-  gold:"#FCD34D", blue:"#60A5FA",
-  white:"#F1EDE6", muted:"#6B7280", light:"#C9D1D9",
-};
+function loadDB(){ try{return JSON.parse(localStorage.getItem(DB_KEY)||'{"submissions":[]}')}catch{return{submissions:[]}} }
+function saveDB(d){ localStorage.setItem(DB_KEY,JSON.stringify(d)) }
 
-// ── STORAGE (localStorage) ────────────────────────────────
-function loadDB() {
-  try { return JSON.parse(localStorage.getItem(DB_KEY) || '{"submissions":[]}'); }
-  catch { return { submissions: [] }; }
-}
-function saveDB(data) {
-  try { localStorage.setItem(DB_KEY, JSON.stringify(data)); return true; }
-  catch { return false; }
-}
-
-// ── SMALL COMPONENTS ─────────────────────────────────────
-function Tag({ children, color="#00E5A0" }) {
-  return <div style={{fontSize:10,letterSpacing:3,textTransform:"uppercase",color,fontWeight:500,marginBottom:8}}>{children}</div>;
-}
-
-function Badge({ status }) {
-  const s = STATUS[status] || STATUS.nuevo;
-  return <span style={{background:s.bg,color:s.color,fontSize:11,fontWeight:600,padding:"3px 10px",borderRadius:50,border:`1px solid ${s.color}33`}}>{s.label}</span>;
-}
-
-function ScoreRing({ score, size=72, color="#00E5A0" }) {
-  const r = (size-10)/2, circ = 2*Math.PI*r, offset = circ-(score/100)*circ;
-  return (
-    <div style={{position:"relative",width:size,height:size,flexShrink:0}}>
-      <svg width={size} height={size} style={{transform:"rotate(-90deg)"}}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={7}/>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={7}
-          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-          style={{filter:`drop-shadow(0 0 5px ${color}55)`,transition:"stroke-dashoffset 1s ease"}}/>
-      </svg>
-      <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:size*.28,fontWeight:700,color,lineHeight:1}}>{score}</div>
-        <div style={{fontSize:9,color:C.muted}}>/ 100</div>
-      </div>
-    </div>
-  );
-}
-
-function ModBar({ icon, label, value, color }) {
-  return (
-    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-      <span style={{fontSize:13,width:18}}>{icon}</span>
-      <span style={{fontSize:11,color:C.light,width:90,flexShrink:0}}>{label}</span>
-      <div style={{flex:1,height:4,background:"rgba(255,255,255,0.06)",borderRadius:4,overflow:"hidden"}}>
-        <div style={{width:`${value*10}%`,height:"100%",background:color,borderRadius:4,transition:"width .8s ease"}}/>
-      </div>
-      <span style={{fontSize:11,fontWeight:600,color,width:20,textAlign:"right",flexShrink:0}}>{value}</span>
-    </div>
-  );
-}
-
-function Toast({ msg }) {
-  if (!msg) return null;
-  return (
-    <div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:C.accent,color:"#07090F",padding:"10px 20px",borderRadius:50,fontSize:13,fontWeight:600,zIndex:999,whiteSpace:"nowrap",animation:"fadeUp .3s ease"}}>
-      {msg}
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// FORM — Para beta testers
-// ═══════════════════════════════════════════════════════════
-function FormView({ onSuccess }) {
-  const [step, setStep] = useState(1);
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
-    nombre:"", ciudad:"", whatsapp:"", ocupacion:"",
-    desafio:"", wish:"", canal:"WhatsApp",
-    finanzas:5, salud:5, mental:5, trabajo:5, habitos:5,
+// ── VIEWS ────────────────────────────────────────────────
+function show(id){
+  ["view-form","view-success","view-admin-login","view-admin"].forEach(v=>{
+    document.getElementById(v).classList.toggle("hidden", v!==id);
   });
-
-  const set = (k,v) => setForm(p=>({...p,[k]:v}));
-  const scoreCalc = () => Math.round((form.finanzas+form.salud+form.mental+form.trabajo+form.habitos)/5*10);
-
-  const handleSubmit = () => {
-    if (!form.nombre||!form.whatsapp||!form.desafio||!form.wish) return;
-    setSaving(true);
-    const db = loadDB();
-    db.submissions.push({
-      id: Date.now().toString(),
-      ...form,
-      score: scoreCalc(),
-      status:"nuevo",
-      fechaIngreso: new Date().toLocaleDateString("es-CO"),
-      notas:"",
-    });
-    saveDB(db);
-    setTimeout(() => { setSaving(false); onSuccess(form.nombre); }, 600);
-  };
-
-  const inp = (id, ph, type="text") => (
-    <input type={type} value={form[id]} placeholder={ph}
-      onChange={e=>set(id,e.target.value)}
-      style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${C.border}`,borderRadius:12,padding:"11px 16px",color:C.white,fontSize:14,outline:"none"}}/>
-  );
-
-  const field = (label, req, children) => (
-    <div style={{marginBottom:20}}>
-      <label style={{display:"block",fontSize:13,fontWeight:500,color:C.light,marginBottom:6}}>
-        {label} {req && <span style={{color:C.accent}}>*</span>}
-      </label>
-      {children}
-    </div>
-  );
-
-  const slider = (id, label, icon, color) => (
-    <div style={{marginBottom:18}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-        <label style={{fontSize:13,color:C.light}}>{icon} {label}</label>
-        <span style={{background:`${color}18`,color,fontSize:13,fontWeight:700,padding:"2px 10px",borderRadius:50}}>{form[id]}</span>
-      </div>
-      <input type="range" min="1" max="10" value={form[id]} onChange={e=>set(id,+e.target.value)}/>
-      <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:C.muted,marginTop:2}}>
-        <span>Mal</span><span>Excelente</span>
-      </div>
-    </div>
-  );
-
-  const card = {background:C.card,border:`1px solid ${C.border}`,borderRadius:20,padding:24,marginBottom:20};
-
-  return (
-    <div style={{minHeight:"100vh",background:C.bg,paddingBottom:60}}>
-      {/* Header */}
-      <div style={{background:"rgba(14,20,32,.95)",borderBottom:`1px solid ${C.border}`,padding:"16px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:50}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:700}}>
-          Life<span style={{color:C.accent}}>OS</span>
-          <span style={{fontFamily:"'DM Sans',sans-serif",fontSize:11,color:C.muted,fontWeight:400,marginLeft:8}}>Beta</span>
-        </div>
-        <div style={{display:"flex",gap:6}}>
-          {[1,2,3].map(i=>(
-            <div key={i} style={{width:28,height:4,borderRadius:4,background:step>=i?C.accent:"rgba(255,255,255,.1)",transition:"background .3s"}}/>
-          ))}
-        </div>
-      </div>
-
-      <div style={{maxWidth:520,margin:"0 auto",padding:"32px 20px"}}>
-
-        {/* STEP 1 */}
-        {step===1 && (
-          <div style={{animation:"fadeUp .5s ease"}}>
-            <div style={{textAlign:"center",marginBottom:32}}>
-              <div style={{fontSize:44,marginBottom:12}}>👋</div>
-              <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:28,marginBottom:10}}>
-                Bienvenido a la beta de <em style={{color:C.accent}}>LifeOS</em>
-              </h1>
-              <p style={{color:C.light,fontSize:14,lineHeight:1.7,fontWeight:300}}>
-                Eres parte del grupo selecto que va a construir el copiloto de vida más poderoso de Colombia. Este formulario toma 3 minutos.
-              </p>
-            </div>
-            <div style={card}>
-              <Tag>Información básica</Tag>
-              {field("¿Cómo te llamamos?", true, inp("nombre","Tu nombre"))}
-              {field("Ciudad", true, inp("ciudad","Bogotá, Medellín, Cali..."))}
-              {field("WhatsApp (para tu reporte semanal)", true, inp("whatsapp","+57 300 000 0000","tel"))}
-              {field("¿A qué te dedicas?", true,
-                <select value={form.ocupacion} onChange={e=>set("ocupacion",e.target.value)}
-                  style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${C.border}`,borderRadius:12,padding:"11px 16px",color:form.ocupacion?C.white:C.muted,fontSize:14,outline:"none"}}>
-                  <option value="">Selecciona una opción</option>
-                  <option>Empleado en empresa</option>
-                  <option>Emprendedor / dueño de negocio</option>
-                  <option>Freelancer / independiente</option>
-                  <option>Estudiante</option>
-                  <option>Otro</option>
-                </select>
-              )}
-            </div>
-            <button onClick={()=>{if(form.nombre&&form.whatsapp&&form.ocupacion)setStep(2);}}
-              style={{width:"100%",background:C.accent,color:"#07090F",border:"none",borderRadius:50,padding:14,fontSize:15,fontWeight:600,cursor:"pointer"}}>
-              Continuar →
-            </button>
-          </div>
-        )}
-
-        {/* STEP 2 */}
-        {step===2 && (
-          <div style={{animation:"fadeUp .5s ease"}}>
-            <div style={{marginBottom:24}}>
-              <Tag>Tu score inicial</Tag>
-              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:22,marginBottom:6}}>¿Cómo estás esta semana?</h2>
-              <p style={{fontSize:13,color:C.muted}}>Del 1 al 10 en cada área. Sé honesto — esto construye tu score de vida base.</p>
-            </div>
-            <div style={card}>
-              {slider("finanzas","Finanzas","💰","#00E5A0")}
-              {slider("salud","Salud","🏃","#FF6B6B")}
-              {slider("mental","Mental","🧘","#A78BFA")}
-              {slider("trabajo","Productividad","🎯","#FCD34D")}
-              {slider("habitos","Hábitos","🌱","#34D399")}
-            </div>
-            <div style={{background:"rgba(0,229,160,.06)",border:`1px solid rgba(0,229,160,.2)`,borderRadius:16,padding:16,display:"flex",alignItems:"center",gap:16,marginBottom:20}}>
-              <ScoreRing score={scoreCalc()} size={64}/>
-              <div>
-                <div style={{fontSize:12,color:C.muted,marginBottom:3}}>Tu score inicial de vida</div>
-                <div style={{fontSize:13,color:C.light,lineHeight:1.5}}>Cada semana este número cambia con tu contexto real.</div>
-              </div>
-            </div>
-            <div style={{display:"flex",gap:10}}>
-              <button onClick={()=>setStep(1)} style={{flex:1,background:"rgba(255,255,255,.05)",color:C.white,border:`1px solid ${C.border}`,borderRadius:50,padding:13,fontSize:14,cursor:"pointer"}}>← Atrás</button>
-              <button onClick={()=>setStep(3)} style={{flex:2,background:C.accent,color:"#07090F",border:"none",borderRadius:50,padding:13,fontSize:14,fontWeight:600,cursor:"pointer"}}>Continuar →</button>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 3 */}
-        {step===3 && (
-          <div style={{animation:"fadeUp .5s ease"}}>
-            <div style={{marginBottom:24}}>
-              <Tag>La pregunta más importante</Tag>
-              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:22,marginBottom:6}}>Cuéntanos qué necesitas</h2>
-              <p style={{fontSize:13,color:C.muted}}>Esta información personaliza todo lo que recibirás.</p>
-            </div>
-            <div style={card}>
-              {field("¿Cuál es tu mayor desafío de vida ahora mismo?", true,
-                <textarea value={form.desafio} onChange={e=>set("desafio",e.target.value)} rows={3}
-                  placeholder="Ej: no llego a fin de mes, mucho estrés, no tengo tiempo para ejercicio..."
-                  style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${C.border}`,borderRadius:12,padding:"11px 16px",color:C.white,fontSize:14,outline:"none",resize:"vertical"}}/>
-              )}
-              {field("Si LifeOS pudiera hacer una sola cosa perfecta por ti, ¿cuál sería?", true,
-                <textarea value={form.wish} onChange={e=>set("wish",e.target.value)} rows={3}
-                  placeholder="Sé específico — no hay respuesta incorrecta..."
-                  style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${C.border}`,borderRadius:12,padding:"11px 16px",color:C.white,fontSize:14,outline:"none",resize:"vertical"}}/>
-              )}
-              {field("¿Cómo prefieres recibir tu reporte?", false,
-                <select value={form.canal} onChange={e=>set("canal",e.target.value)}
-                  style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${C.border}`,borderRadius:12,padding:"11px 16px",color:C.white,fontSize:14,outline:"none"}}>
-                  <option>WhatsApp</option><option>Email</option><option>Ambos</option>
-                </select>
-              )}
-            </div>
-            <div style={{display:"flex",gap:10}}>
-              <button onClick={()=>setStep(2)} style={{flex:1,background:"rgba(255,255,255,.05)",color:C.white,border:`1px solid ${C.border}`,borderRadius:50,padding:13,fontSize:14,cursor:"pointer"}}>← Atrás</button>
-              <button onClick={handleSubmit} disabled={saving||!form.desafio||!form.wish}
-                style={{flex:2,background:saving?"rgba(0,229,160,.4)":C.accent,color:"#07090F",border:"none",borderRadius:50,padding:13,fontSize:14,fontWeight:600,cursor:saving?"not-allowed":"pointer",transition:"all .2s"}}>
-                {saving ? "Guardando..." : "¡Estoy dentro! →"}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  document.getElementById("admin-key-wrap").classList.toggle("hidden", id!=="view-form");
 }
 
-// ═══════════════════════════════════════════════════════════
-// ADMIN LOGIN
-// ═══════════════════════════════════════════════════════════
-function AdminLogin({ onLogin }) {
-  const [pass, setPass] = useState("");
-  const [err, setErr] = useState(false);
-  const tryLogin = () => { if(pass===ADMIN_PASS) onLogin(); else setErr(true); };
-  return (
-    <div style={{minHeight:"100vh",background:C.bg,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
-      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:24,padding:40,maxWidth:340,width:"100%",textAlign:"center"}}>
-        <div style={{fontSize:40,marginBottom:16}}>🔐</div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:22,marginBottom:8}}>Admin LifeOS</h2>
-        <p style={{fontSize:13,color:C.muted,marginBottom:24}}>Acceso exclusivo para el fundador</p>
-        <input type="password" value={pass} onChange={e=>{setPass(e.target.value);setErr(false);}}
-          onKeyDown={e=>e.key==="Enter"&&tryLogin()}
-          placeholder="Contraseña"
-          style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${err?C.coral:C.border}`,borderRadius:12,padding:"12px 16px",color:C.white,fontSize:14,outline:"none",marginBottom:12,textAlign:"center"}}/>
-        {err && <div style={{color:C.coral,fontSize:12,marginBottom:10}}>Contraseña incorrecta</div>}
-        <button onClick={tryLogin}
-          style={{width:"100%",background:C.accent,color:"#07090F",border:"none",borderRadius:50,padding:13,fontSize:14,fontWeight:600,cursor:"pointer"}}>
-          Entrar →
-        </button>
-        <div style={{fontSize:11,color:C.muted,marginTop:16}}>Clave: lifeos2026</div>
+// ── FORM ─────────────────────────────────────────────────
+function buildSliders(){
+  const w = document.getElementById("sliders-wrap");
+  w.innerHTML = MODS.map(m=>`
+    <div style="margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <label style="font-size:13px;color:var(--light)">${m.icon} ${m.label}</label>
+        <span id="v-${m.id}" style="background:${m.color}18;color:${m.color};font-size:13px;font-weight:700;padding:2px 10px;border-radius:50px">5</span>
       </div>
+      <input type="range" min="1" max="10" value="5" oninput="updateSlider('${m.id}',this.value,'${m.color}')">
+      <div class="range-labels"><span>Mal</span><span>Excelente</span></div>
     </div>
-  );
+  `).join("");
 }
 
-// ═══════════════════════════════════════════════════════════
-// ADMIN PANEL
-// ═══════════════════════════════════════════════════════════
-function AdminPanel({ onLogout }) {
-  const [db, setDb] = useState(loadDB());
-  const [selected, setSelected] = useState(null);
-  const [view, setView] = useState("dashboard");
-  const [notas, setNotas] = useState("");
-  const [toast, setToast] = useState("");
+function updateSlider(id, val, color){
+  document.getElementById("v-"+id).textContent = val;
+  updateScorePreview();
+}
 
-  const refresh = () => setDb(loadDB());
-  const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(""),2800); };
+function updateScorePreview(){
+  const total = MODS.reduce((a,m)=>{
+    const el = document.querySelector(`input[oninput*="${m.id}"]`);
+    return a + (el ? +el.value : 5);
+  },0);
+  document.getElementById("score-preview-num").textContent = Math.round(total/MODS.length*10);
+}
 
-  const updateStatus = (id, status) => {
-    const d = loadDB();
-    d.submissions = d.submissions.map(s=>s.id===id?{...s,status}:s);
-    saveDB(d); setDb(d);
-    if(selected?.id===id) setSelected(d.submissions.find(s=>s.id===id));
-    showToast("Estado actualizado ✓");
+function goStep(n){
+  if(n===2){
+    if(!document.getElementById("f-nombre").value||!document.getElementById("f-whatsapp").value||!document.getElementById("f-ocupacion").value){
+      toast("⚠️ Completa todos los campos"); return;
+    }
+  }
+  [1,2,3].forEach(i=>{
+    document.getElementById("step"+i).classList.toggle("hidden",i!==n);
+  });
+  const dots = document.querySelectorAll(".progress-dot");
+  dots.forEach((d,i)=>d.classList.toggle("on",i<n));
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function submitForm(){
+  const desafio = document.getElementById("f-desafio").value.trim();
+  const wish = document.getElementById("f-wish").value.trim();
+  if(!desafio||!wish){toast("⚠️ Completa los campos obligatorios");return;}
+
+  const btn = document.getElementById("submit-btn");
+  btn.disabled = true; btn.textContent = "Guardando...";
+
+  const scores = {};
+  MODS.forEach(m=>{
+    const el = document.querySelector(`input[oninput*="${m.id}"]`);
+    scores[m.id] = el ? +el.value : 5;
+  });
+  const total = Math.round(Object.values(scores).reduce((a,v)=>a+v,0)/MODS.length*10);
+
+  const entry = {
+    id: Date.now().toString(),
+    nombre: document.getElementById("f-nombre").value.trim(),
+    ciudad: document.getElementById("f-ciudad").value.trim(),
+    whatsapp: document.getElementById("f-whatsapp").value.trim(),
+    ocupacion: document.getElementById("f-ocupacion").value,
+    desafio, wish,
+    canal: document.getElementById("f-canal").value,
+    ...scores, score: total, status:"nuevo",
+    fechaIngreso: new Date().toLocaleDateString("es-CO"),
+    notas: "",
   };
 
-  const saveNotas = (id) => {
-    const d = loadDB();
-    d.submissions = d.submissions.map(s=>s.id===id?{...s,notas}:s);
-    saveDB(d); setDb(d); showToast("Notas guardadas ✓");
-  };
+  const db = loadDB();
+  db.submissions.push(entry);
+  saveDB(db);
 
-  const deleteEntry = (id) => {
-    if(!window.confirm("¿Eliminar este beta tester?")) return;
-    const d = loadDB();
-    d.submissions = d.submissions.filter(s=>s.id!==id);
-    saveDB(d); setDb(d); setSelected(null); showToast("Eliminado");
-  };
+  document.getElementById("success-name").textContent = entry.nombre;
+  setTimeout(()=>{ show("view-success"); btn.disabled=false; btn.textContent="¡Estoy dentro! →"; }, 500);
+}
 
+// ── ADMIN ────────────────────────────────────────────────
+function quickAdmin(){
+  const k = document.getElementById("admin-key").value;
+  if(k===ADMIN_PASS){ document.getElementById("admin-key").value=""; show("view-admin-login"); }
+}
+
+function tryLogin(){
+  const p = document.getElementById("login-pass").value;
+  if(p===ADMIN_PASS){ document.getElementById("login-err").classList.add("hidden"); loadAdmin(); show("view-admin"); }
+  else { document.getElementById("login-err").classList.remove("hidden"); }
+}
+
+function logout(){ show("view-form"); }
+
+function adminTab(tab){
+  document.getElementById("admin-dashboard").classList.toggle("hidden", tab!=="dashboard");
+  document.getElementById("admin-testers").classList.toggle("hidden", tab!=="testers");
+  document.getElementById("tab-dash").classList.toggle("active", tab==="dashboard");
+  document.getElementById("tab-testers").classList.toggle("active", tab==="testers");
+  if(tab==="testers") loadTesters();
+}
+
+function loadAdmin(){
+  const db = loadDB();
   const subs = db.submissions;
-  const avgScore = subs.length ? Math.round(subs.reduce((a,s)=>a+s.score,0)/subs.length) : 0;
-  const card = {background:C.card,border:`1px solid ${C.border}`,borderRadius:16,padding:20};
+  const avg = subs.length ? Math.round(subs.reduce((a,s)=>a+s.score,0)/subs.length) : 0;
 
-  return (
-    <div style={{minHeight:"100vh",background:C.bg}}>
-      {/* NAV */}
-      <div style={{background:"rgba(14,20,32,.95)",borderBottom:`1px solid ${C.border}`,padding:"14px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:50,flexWrap:"wrap",gap:8}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:20,fontWeight:700}}>
-          Life<span style={{color:C.accent}}>OS</span>
-          <span style={{fontFamily:"'DM Sans',sans-serif",fontSize:11,color:C.purple,fontWeight:500,marginLeft:8}}>Admin</span>
+  // KPIs
+  document.getElementById("kpi-grid").innerHTML = [
+    {n:subs.length,            l:"Beta Testers", c:"#00E5A0"},
+    {n:subs.filter(s=>s.status==="activo").length, l:"Activos", c:"#60A5FA"},
+    {n:avg,                    l:"Score promedio",c:"#A78BFA"},
+    {n:subs.filter(s=>s.status==="nuevo").length,  l:"Por contactar",c:"#FCD34D"},
+  ].map(k=>`<div class="kpi"><div class="kpi-n" style="color:${k.c}">${k.n}</div><div class="kpi-l">${k.l}</div></div>`).join("");
+
+  // Ocupaciones
+  const occs = ["Emprendedor / dueño de negocio","Freelancer / independiente","Empleado en empresa","Estudiante","Otro"];
+  document.getElementById("occ-chart").innerHTML = subs.length ? occs.map(o=>{
+    const c = subs.filter(s=>s.ocupacion===o).length;
+    if(!c) return "";
+    const pct = Math.round(c/subs.length*100);
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+        <span style="color:var(--light)">${o.split(" /")[0]}</span>
+        <span style="color:var(--accent);font-weight:600">${c}</span>
+      </div>
+      <div style="height:4px;background:rgba(255,255,255,.05);border-radius:4px">
+        <div style="width:${pct}%;height:100%;background:var(--accent);border-radius:4px"></div>
+      </div>
+    </div>`;
+  }).join("") : `<div style="color:var(--muted);font-size:13px">Sin datos aún</div>`;
+
+  // Mod averages
+  document.getElementById("mod-avg-bars").innerHTML = subs.length ? MODS.map(m=>{
+    const avg2 = Math.round(subs.reduce((a,s)=>a+(s[m.id]||5),0)/subs.length);
+    return `<div class="mod-bar-row">
+      <div class="mod-bar-label">${m.icon} ${m.label}</div>
+      <div class="mod-bar-track"><div class="mod-bar-fill" style="width:${avg2*10}%;background:${m.color}"></div></div>
+      <div class="mod-bar-score" style="color:${m.color}">${avg2}</div>
+    </div>`;
+  }).join("") : `<div style="color:var(--muted);font-size:13px">Sin datos aún</div>`;
+
+  // Recent
+  document.getElementById("recent-list").innerHTML = subs.length ? [...subs].reverse().slice(0,5).map(s=>`
+    <div onclick="adminTab('testers');setTimeout(()=>selectTester('${s.id}'),100)"
+      style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar">${s.nombre[0].toUpperCase()}</div>
+        <div>
+          <div style="font-size:14px;font-weight:500">${s.nombre}</div>
+          <div style="font-size:11px;color:var(--muted)">${s.ciudad} · ${s.fechaIngreso}</div>
         </div>
-        <div style={{display:"flex",gap:6}}>
-          {["dashboard","beta-testers"].map(v=>(
-            <button key={v} onClick={()=>{setView(v);setSelected(null);}}
-              style={{background:view===v?"rgba(0,229,160,.1)":"none",color:view===v?C.accent:C.muted,border:view===v?`1px solid rgba(0,229,160,.2)`:"1px solid transparent",borderRadius:50,padding:"6px 14px",fontSize:12,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
-              {v==="dashboard"?"📊 Dashboard":"👥 Beta Testers"}
-            </button>
-          ))}
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="badge" style="background:${STATUS[s.status].bg};color:${STATUS[s.status].color}">${STATUS[s.status].label}</span>
+        <span style="font-family:'Playfair Display',serif;font-size:17px;color:var(--accent);font-weight:700">${s.score}</span>
+      </div>
+    </div>`).join("") : `<div style="color:var(--muted);font-size:14px;text-align:center;padding:20px 0">Aún no hay beta testers.</div>`;
+}
+
+function loadTesters(){
+  const db = loadDB();
+  const subs = db.submissions;
+  document.getElementById("testers-count").textContent = subs.length + " registrados";
+  document.getElementById("testers-list").innerHTML = subs.length ? [...subs].reverse().map(s=>`
+    <div class="tester-item" id="ti-${s.id}" onclick="selectTester('${s.id}')">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar">${s.nombre[0].toUpperCase()}</div>
+        <div>
+          <div style="font-size:14px;font-weight:500">${s.nombre}</div>
+          <div style="font-size:11px;color:var(--muted)">${s.ciudad} · ${s.whatsapp}</div>
         </div>
-        <div style={{display:"flex",gap:8,alignItems:"center"}}>
-          <button onClick={refresh} style={{background:"rgba(255,255,255,.05)",border:`1px solid ${C.border}`,color:C.muted,borderRadius:50,padding:"6px 12px",fontSize:12,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>↻ Actualizar</button>
-          <button onClick={onLogout} style={{background:"none",border:"none",color:C.muted,fontSize:12,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Salir</button>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <span class="badge" style="background:${STATUS[s.status].bg};color:${STATUS[s.status].color}">${STATUS[s.status].label}</span>
+        <span style="font-family:'Playfair Display',serif;font-size:15px;color:var(--accent);font-weight:700">${s.score}/100</span>
+      </div>
+    </div>`).join("")
+  : `<div class="card" style="text-align:center;padding:28px"><div style="font-size:28px;margin-bottom:10px">📭</div><div style="color:var(--muted);font-size:14px">Aún no hay beta testers.</div></div>`;
+}
+
+function selectTester(id){
+  document.querySelectorAll(".tester-item").forEach(el=>el.classList.remove("active"));
+  const ti = document.getElementById("ti-"+id);
+  if(ti) ti.classList.add("active");
+
+  const db = loadDB();
+  const s = db.submissions.find(x=>x.id===id);
+  if(!s) return;
+
+  const statusBtns = Object.entries(STATUS).map(([k,v])=>`
+    <button class="status-btn" onclick="updateStatus('${id}','${k}')"
+      style="${s.status===k?`background:${v.bg};color:${v.color};border-color:${v.color}44`:""}">${v.label}</button>`).join("");
+
+  const modBars = MODS.map(m=>`
+    <div class="mod-bar-row">
+      <div class="mod-bar-label">${m.icon} ${m.label}</div>
+      <div class="mod-bar-track"><div class="mod-bar-fill" style="width:${(s[m.id]||5)*10}%;background:${m.color}"></div></div>
+      <div class="mod-bar-score" style="color:${m.color}">${s[m.id]||5}</div>
+    </div>`).join("");
+
+  document.getElementById("tester-detail").innerHTML = `
+    <div class="detail-panel">
+      <div class="card" style="display:flex;align-items:center;gap:14px;margin-bottom:10px">
+        <div class="avatar" style="width:52px;height:52px;font-size:20px">${s.nombre[0].toUpperCase()}</div>
+        <div style="flex:1">
+          <div style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:2px">${s.nombre}</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">${s.ciudad} · ${s.ocupacion}</div>
+          <div class="status-btns">${statusBtns}</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--accent);line-height:1">${s.score}</div>
+          <div style="font-size:10px;color:var(--muted)">/ 100</div>
         </div>
       </div>
 
-      <div style={{maxWidth:980,margin:"0 auto",padding:"28px 20px"}}>
-
-        {/* DASHBOARD */}
-        {view==="dashboard" && (
-          <div style={{animation:"fadeUp .4s ease"}}>
-            <Tag>Resumen general</Tag>
-            <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:24,marginBottom:24}}>Tu beta en números</h2>
-
-            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:12,marginBottom:24}}>
-              {[
-                {n:subs.length,   l:"Beta testers",          c:C.accent},
-                {n:subs.filter(s=>s.status==="activo").length, l:"Activos",c:C.blue},
-                {n:avgScore,      l:"Score promedio",         c:C.purple},
-                {n:subs.filter(s=>s.status==="nuevo").length, l:"Por contactar",c:C.gold},
-              ].map((k,i)=>(
-                <div key={i} style={{...card,textAlign:"center"}}>
-                  <div style={{fontFamily:"'Playfair Display',serif",fontSize:38,fontWeight:700,color:k.c,lineHeight:1}}>{k.n}</div>
-                  <div style={{fontSize:11,color:C.muted,marginTop:6}}>{k.l}</div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:24}}>
-              <div style={card}>
-                <Tag>Por ocupación</Tag>
-                {["Emprendedor / dueño de negocio","Freelancer / independiente","Empleado en empresa","Estudiante","Otro"].map(occ=>{
-                  const count = subs.filter(s=>s.ocupacion===occ).length;
-                  const pct = subs.length ? Math.round(count/subs.length*100) : 0;
-                  return count>0 ? (
-                    <div key={occ} style={{marginBottom:10}}>
-                      <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}>
-                        <span style={{color:C.light}}>{occ.split(" /")[0]}</span>
-                        <span style={{color:C.accent,fontWeight:600}}>{count}</span>
-                      </div>
-                      <div style={{height:4,background:"rgba(255,255,255,.05)",borderRadius:4}}>
-                        <div style={{width:`${pct}%`,height:"100%",background:C.accent,borderRadius:4}}/>
-                      </div>
-                    </div>
-                  ) : null;
-                })}
-                {subs.length===0 && <div style={{color:C.muted,fontSize:13}}>Sin datos aún</div>}
-              </div>
-
-              <div style={card}>
-                <Tag>Score promedio por módulo</Tag>
-                {subs.length>0 ? MODULOS.map(m=>{
-                  const avg = Math.round(subs.reduce((a,s)=>a+(s[m.id]||5),0)/subs.length);
-                  return <ModBar key={m.id} icon={m.icon} label={m.label} value={avg} color={m.color}/>;
-                }) : <div style={{color:C.muted,fontSize:13}}>Sin datos aún</div>}
-              </div>
-            </div>
-
-            <div style={card}>
-              <Tag>Últimos registros</Tag>
-              {subs.length===0 ? (
-                <div style={{color:C.muted,fontSize:14,textAlign:"center",padding:"24px 0"}}>Aún no hay beta testers. Comparte el link de onboarding.</div>
-              ) : [...subs].reverse().slice(0,6).map(s=>(
-                <div key={s.id} onClick={()=>{setSelected(s);setNotas(s.notas||"");setView("beta-testers");}}
-                  style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 0",borderBottom:`1px solid ${C.border}`,cursor:"pointer"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:12}}>
-                    <div style={{width:36,height:36,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},${C.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:700,color:"#07090F"}}>
-                      {s.nombre[0].toUpperCase()}
-                    </div>
-                    <div>
-                      <div style={{fontSize:14,fontWeight:500}}>{s.nombre}</div>
-                      <div style={{fontSize:11,color:C.muted}}>{s.ciudad} · {s.fechaIngreso}</div>
-                    </div>
-                  </div>
-                  <div style={{display:"flex",alignItems:"center",gap:12}}>
-                    <Badge status={s.status}/>
-                    <span style={{fontFamily:"'Playfair Display',serif",fontSize:18,color:C.accent,fontWeight:700}}>{s.score}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* BETA TESTERS */}
-        {view==="beta-testers" && (
-          <div style={{display:"grid",gridTemplateColumns:selected?"1fr 1.5fr":"1fr",gap:16,animation:"fadeUp .4s ease"}}>
-            <div>
-              <Tag>Beta Testers</Tag>
-              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:22,marginBottom:16}}>{subs.length} registrados</h2>
-              {subs.length===0 ? (
-                <div style={{...card,textAlign:"center",padding:32}}>
-                  <div style={{fontSize:32,marginBottom:12}}>📭</div>
-                  <div style={{color:C.muted,fontSize:14}}>Aún no hay beta testers.</div>
-                </div>
-              ) : [...subs].reverse().map(s=>(
-                <div key={s.id} onClick={()=>{setSelected(s);setNotas(s.notas||"");}}
-                  style={{...card,marginBottom:8,cursor:"pointer",borderColor:selected?.id===s.id?"rgba(0,229,160,.4)":C.border,transition:"border-color .2s"}}>
-                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <div style={{width:40,height:40,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},${C.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:700,color:"#07090F",flexShrink:0}}>
-                        {s.nombre[0].toUpperCase()}
-                      </div>
-                      <div>
-                        <div style={{fontSize:14,fontWeight:500}}>{s.nombre}</div>
-                        <div style={{fontSize:11,color:C.muted}}>{s.ciudad} · {s.whatsapp}</div>
-                      </div>
-                    </div>
-                    <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}}>
-                      <Badge status={s.status}/>
-                      <span style={{fontFamily:"'Playfair Display',serif",fontSize:16,color:C.accent,fontWeight:700}}>{s.score}/100</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {selected && (
-              <div style={{animation:"fadeUp .3s ease"}}>
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
-                  <Tag>Perfil completo</Tag>
-                  <button onClick={()=>setSelected(null)} style={{background:"none",border:"none",color:C.muted,fontSize:20,cursor:"pointer"}}>✕</button>
-                </div>
-
-                <div style={{...card,marginBottom:12,display:"flex",alignItems:"center",gap:16}}>
-                  <ScoreRing score={selected.score} size={80}/>
-                  <div style={{flex:1}}>
-                    <div style={{fontFamily:"'Playfair Display',serif",fontSize:20,marginBottom:2}}>{selected.nombre}</div>
-                    <div style={{fontSize:12,color:C.muted,marginBottom:10}}>{selected.ciudad} · {selected.ocupacion}</div>
-                    <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                      {Object.keys(STATUS).map(st=>(
-                        <button key={st} onClick={()=>updateStatus(selected.id,st)}
-                          style={{background:selected.status===st?STATUS[st].bg:"rgba(255,255,255,.04)",color:selected.status===st?STATUS[st].color:C.muted,border:`1px solid ${selected.status===st?STATUS[st].color+"44":C.border}`,borderRadius:50,padding:"4px 10px",fontSize:11,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all .2s"}}>
-                          {STATUS[st].label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{...card,marginBottom:12}}>
-                  <Tag>Scores por módulo</Tag>
-                  {MODULOS.map(m=><ModBar key={m.id} icon={m.icon} label={m.label} value={selected[m.id]||5} color={m.color}/>)}
-                </div>
-
-                <div style={{...card,marginBottom:12}}>
-                  <Tag>Respuestas clave</Tag>
-                  <div style={{marginBottom:10}}>
-                    <div style={{fontSize:11,color:C.muted,marginBottom:4}}>Mayor desafío</div>
-                    <div style={{fontSize:13,color:C.light,lineHeight:1.6,background:"rgba(255,255,255,.03)",borderRadius:10,padding:"10px 12px"}}>{selected.desafio}</div>
-                  </div>
-                  <div style={{marginBottom:12}}>
-                    <div style={{fontSize:11,color:C.muted,marginBottom:4}}>Lo que quiere de LifeOS</div>
-                    <div style={{fontSize:13,color:C.light,lineHeight:1.6,background:"rgba(255,255,255,.03)",borderRadius:10,padding:"10px 12px"}}>{selected.wish}</div>
-                  </div>
-                  <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-                    <div><div style={{fontSize:11,color:C.muted}}>Canal</div><div style={{fontSize:13,color:C.accent,fontWeight:500}}>{selected.canal}</div></div>
-                    <div><div style={{fontSize:11,color:C.muted}}>Ingresó</div><div style={{fontSize:13,color:C.light}}>{selected.fechaIngreso}</div></div>
-                  </div>
-                </div>
-
-                <div style={{...card,marginBottom:12}}>
-                  <Tag>Notas privadas</Tag>
-                  <textarea value={notas} onChange={e=>setNotas(e.target.value)} rows={3}
-                    placeholder="Observaciones, feedback, acuerdos con este beta tester..."
-                    style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${C.border}`,borderRadius:10,padding:"10px 12px",color:C.white,fontSize:13,outline:"none",resize:"vertical",marginBottom:10}}/>
-                  <button onClick={()=>saveNotas(selected.id)}
-                    style={{background:C.accent,color:"#07090F",border:"none",borderRadius:50,padding:"8px 20px",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
-                    Guardar notas
-                  </button>
-                </div>
-
-                <div style={{...card,marginBottom:12,background:"rgba(37,211,102,.05)",borderColor:"rgba(37,211,102,.2)"}}>
-                  <div style={{fontSize:12,color:"#25D366",fontWeight:500,marginBottom:8}}>📱 Contacto directo</div>
-                  <a href={`https://wa.me/${selected.whatsapp.replace(/\D/g,"")}`} target="_blank"
-                    style={{display:"inline-block",background:"#25D366",color:"#fff",borderRadius:50,padding:"9px 20px",fontSize:13,fontWeight:600,textDecoration:"none"}}>
-                    Abrir WhatsApp →
-                  </a>
-                </div>
-
-                <button onClick={()=>deleteEntry(selected.id)}
-                  style={{background:"rgba(255,107,107,.08)",border:`1px solid rgba(255,107,107,.2)`,color:C.coral,borderRadius:50,padding:"8px 18px",fontSize:12,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
-                  Eliminar registro
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+      <div class="card" style="margin-bottom:10px">
+        <div class="tag">Scores por módulo</div>
+        ${modBars}
       </div>
-      <Toast msg={toast}/>
-    </div>
-  );
-}
 
-// ═══════════════════════════════════════════════════════════
-// SUCCESS
-// ═══════════════════════════════════════════════════════════
-function SuccessScreen({ nombre }) {
-  return (
-    <div style={{minHeight:"100vh",background:C.bg,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
-      <div style={{textAlign:"center",maxWidth:420,animation:"fadeUp .5s ease"}}>
-        <div style={{fontSize:64,marginBottom:20}}>🎉</div>
-        <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:28,marginBottom:12}}>
-          ¡Bienvenido/a, <em style={{color:C.accent}}>{nombre}</em>!
-        </h1>
-        <p style={{fontSize:15,color:C.light,lineHeight:1.7,fontWeight:300,marginBottom:28}}>
-          Tu perfil fue guardado. El próximo lunes recibirás tu primer score de vida. LifeOS ya está construyendo tu perfil.
-        </p>
-        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:20,padding:24,textAlign:"left"}}>
-          {["Este domingo recibirás tu primer check-in semanal","El lunes llega tu score de vida personalizado","Tienes acceso gratuito durante el primer mes completo"].map((item,i)=>(
-            <div key={i} style={{display:"flex",gap:10,marginBottom:10,fontSize:13,color:C.light}}>
-              <span style={{color:C.accent,fontWeight:700}}>→</span><span>{item}</span>
-            </div>
-          ))}
+      <div class="card" style="margin-bottom:10px">
+        <div class="tag">Respuestas clave</div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Mayor desafío</div>
+          <div style="font-size:13px;color:var(--light);line-height:1.6;background:rgba(255,255,255,.03);border-radius:10px;padding:10px 12px">${s.desafio}</div>
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Lo que quiere de LifeOS</div>
+          <div style="font-size:13px;color:var(--light);line-height:1.6;background:rgba(255,255,255,.03);border-radius:10px;padding:10px 12px">${s.wish}</div>
+        </div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div><div style="font-size:11px;color:var(--muted)">Canal</div><div style="font-size:13px;color:var(--accent);font-weight:500">${s.canal}</div></div>
+          <div><div style="font-size:11px;color:var(--muted)">Ingresó</div><div style="font-size:13px;color:var(--light)">${s.fechaIngreso}</div></div>
+          <div><div style="font-size:11px;color:var(--muted)">WhatsApp</div><div style="font-size:13px;color:var(--light)">${s.whatsapp}</div></div>
         </div>
       </div>
-    </div>
-  );
+
+      <div class="card" style="margin-bottom:10px">
+        <div class="tag">Notas privadas</div>
+        <textarea id="notas-${id}" rows="3" class="inp" placeholder="Observaciones, feedback, acuerdos..." style="margin-bottom:10px">${s.notas||""}</textarea>
+        <button class="btn btn-primary" style="width:auto;padding:8px 20px;font-size:13px" onclick="saveNotas('${id}')">Guardar notas</button>
+      </div>
+
+      <div class="card" style="margin-bottom:10px;background:rgba(37,211,102,.05);border-color:rgba(37,211,102,.2)">
+        <div style="font-size:12px;color:#25D366;font-weight:500;margin-bottom:8px">📱 Contacto directo</div>
+        <a class="wa-btn" href="https://wa.me/${s.whatsapp.replace(/\D/g,"")}" target="_blank">Abrir WhatsApp →</a>
+      </div>
+
+      <button onclick="deleteTester('${id}')"
+        style="background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.2);color:var(--coral);border-radius:50px;padding:8px 18px;font-size:12px;cursor:pointer">
+        Eliminar registro
+      </button>
+    </div>`;
 }
 
-// ═══════════════════════════════════════════════════════════
-// ROOT APP
-// ═══════════════════════════════════════════════════════════
-function App() {
-  const [mode, setMode] = useState("form");
-  const [adminAuth, setAdminAuth] = useState(false);
-  const [successName, setSuccessName] = useState(null);
-  const [adminKey, setAdminKey] = useState("");
-
-  return (
-    <>
-      {mode==="form" && !successName && <FormView onSuccess={n=>setSuccessName(n)}/>}
-      {mode==="form" && successName && <SuccessScreen nombre={successName}/>}
-      {mode==="admin" && !adminAuth && <AdminLogin onLogin={()=>setAdminAuth(true)}/>}
-      {mode==="admin" && adminAuth && <AdminPanel onLogout={()=>{setAdminAuth(false);setMode("form");}}/>}
-
-      {/* Admin access - campo discreto abajo derecha */}
-      {mode==="form" && !successName && (
-        <div style={{position:"fixed",bottom:16,right:16,zIndex:100}}>
-          <input type="password" placeholder="admin" value={adminKey}
-            onChange={e=>setAdminKey(e.target.value)}
-            onKeyDown={e=>{if(e.key==="Enter"&&adminKey===ADMIN_PASS){setMode("admin");setAdminKey("");}}}
-            style={{width:75,background:"rgba(14,20,32,.9)",border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 10px",color:C.muted,fontSize:11,outline:"none"}}/>
-        </div>
-      )}
-    </>
-  );
+function updateStatus(id, status){
+  const db = loadDB();
+  db.submissions = db.submissions.map(s=>s.id===id?{...s,status}:s);
+  saveDB(db); loadTesters(); selectTester(id); toast("Estado actualizado ✓");
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+function saveNotas(id){
+  const notas = document.getElementById("notas-"+id).value;
+  const db = loadDB();
+  db.submissions = db.submissions.map(s=>s.id===id?{...s,notas}:s);
+  saveDB(db); toast("Notas guardadas ✓");
+}
+
+function deleteTester(id){
+  if(!confirm("¿Eliminar este beta tester?")) return;
+  const db = loadDB();
+  db.submissions = db.submissions.filter(s=>s.id!==id);
+  saveDB(db); document.getElementById("tester-detail").innerHTML=""; loadTesters(); loadAdmin(); toast("Eliminado");
+}
+
+// ── TOAST ────────────────────────────────────────────────
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 2800);
+}
+
+// ── INIT ─────────────────────────────────────────────────
+buildSliders();
+document.getElementById("login-pass").addEventListener("keydown",e=>{ if(e.key==="Enter") tryLogin(); });
 </script>
 </body>
 </html>
