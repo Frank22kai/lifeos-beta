@@ -3,799 +3,633 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LifeOS Beta — Bienvenido</title>
+<title>LifeOS Beta</title>
+<meta name="description" content="Sistema de onboarding y gestión de beta testers LifeOS">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#07090F;--card:#0E1420;--card2:#111827;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);
-  --accent:#00E5A0;--purple:#A78BFA;--coral:#FF6B6B;--gold:#FCD34D;--blue:#60A5FA;
-  --white:#F1EDE6;--muted:#6B7280;--light:#C9D1D9;
-}
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden}
-
-/* NAV */
-nav{position:sticky;top:0;z-index:50;background:rgba(7,9,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:.9rem 2rem;display:flex;align-items:center;justify-content:space-between}
-.logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700}
-.logo span{color:var(--accent)}
-.nav-tabs{display:flex;gap:.25rem}
-.tab{background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.82rem;padding:.45rem .9rem;border-radius:50px;cursor:pointer;transition:all .2s}
-.tab.active{background:rgba(0,229,160,.1);color:var(--accent)}
-.tab:hover:not(.active){color:var(--white)}
-.beta-badge{background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.2);color:var(--accent);font-size:.72rem;padding:.25rem .75rem;border-radius:50px;font-weight:500}
-
-/* SECTIONS */
-.section{display:none;padding:2.5rem 1.5rem;max-width:780px;margin:0 auto}
-.section.active{display:block}
-
-/* WELCOME */
-.welcome-hero{text-align:center;padding:2.5rem 1rem 2rem;position:relative}
-.welcome-hero::before{content:'';position:absolute;top:-50px;left:50%;transform:translateX(-50%);width:500px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,160,.06) 0%,transparent 70%);pointer-events:none}
-.big-icon{font-size:3.5rem;margin-bottom:1rem;display:block}
-h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,2.8rem);line-height:1.15;margin-bottom:.75rem}
-h1 em{color:var(--accent);font-style:italic}
-.hero-sub{color:var(--light);font-size:1rem;font-weight:300;max-width:520px;margin:0 auto 2rem;line-height:1.7}
-
-/* STEP LIST */
-.steps-list{display:flex;flex-direction:column;gap:.75rem;margin-bottom:2rem}
-.step-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.25rem 1.4rem;display:flex;align-items:flex-start;gap:1rem;transition:border-color .2s}
-.step-item:hover{border-color:rgba(0,229,160,.2)}
-.step-num{width:32px;height:32px;border-radius:50%;background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.2);color:var(--accent);font-size:.8rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.1rem}
-.step-content{}
-.step-title{font-size:.95rem;font-weight:500;margin-bottom:.25rem}
-.step-desc{font-size:.82rem;color:var(--muted);line-height:1.55}
-.step-tag{display:inline-block;margin-top:.4rem;font-size:.68rem;padding:.15rem .55rem;border-radius:50px;font-weight:500}
-
-/* INFO CARDS */
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:1.5rem}
-.info-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem}
-.info-tag{font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
-.info-title{font-size:.95rem;font-weight:500;margin-bottom:.4rem}
-.info-body{font-size:.8rem;color:var(--light);line-height:1.6}
-
-/* FORM */
-.form-section{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem;margin-bottom:1.5rem}
-.form-title{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:.4rem}
-.form-sub{font-size:.83rem;color:var(--muted);margin-bottom:1.75rem}
-.field{margin-bottom:1.25rem}
-.field label{display:block;font-size:.82rem;font-weight:500;margin-bottom:.4rem;color:var(--light)}
-.field label span{color:var(--accent)}
-.field input,.field textarea,.field select{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:.75rem 1rem;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;resize:vertical}
-.field input:focus,.field textarea:focus,.field select:focus{border-color:rgba(0,229,160,.4)}
-.field input::placeholder,.field textarea::placeholder{color:var(--muted)}
-.field select option{background:#111827}
-.range-wrap{display:flex;align-items:center;gap:.75rem}
-.range-wrap input[type=range]{flex:1;accent-color:var(--accent);cursor:pointer}
-.range-val{background:rgba(0,229,160,.1);color:var(--accent);font-weight:600;font-size:.9rem;min-width:32px;text-align:center;padding:.2rem .5rem;border-radius:8px}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
-.submit-btn{width:100%;background:var(--accent);color:#07090F;border:none;border-radius:50px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;margin-top:.5rem}
-.submit-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,229,160,.25)}
-
-/* REPORT */
-.report-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:1.75rem;margin-bottom:1.25rem}
-.report-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid var(--border2)}
-.report-user{display:flex;align-items:center;gap:.75rem}
-.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:#07090F}
-.report-name{font-size:.95rem;font-weight:500}
-.report-date{font-size:.72rem;color:var(--muted)}
-.report-week{font-size:.75rem;color:var(--accent);background:rgba(0,229,160,.1);padding:.25rem .7rem;border-radius:50px}
-
-/* SCORE DISPLAY */
-.score-main{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem}
-.score-ring-wrap{position:relative;flex-shrink:0}
-.score-ring-wrap svg{transform:rotate(-90deg)}
-.score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.score-big{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--accent);line-height:1}
-.score-lbl{font-size:.6rem;color:var(--muted)}
-.score-right{}
-.score-title{font-family:'Playfair Display',serif;font-size:1.15rem;margin-bottom:.35rem}
-.score-msg{font-size:.83rem;color:var(--light);line-height:1.55}
-
-/* MODULE BARS */
-.mod-bars{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.25rem}
-.mod-bar-row{display:flex;align-items:center;gap:.75rem}
-.mod-bar-label{font-size:.78rem;width:100px;flex-shrink:0;display:flex;align-items:center;gap:.4rem}
-.mod-bar-track{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden}
-.mod-bar-fill{height:100%;border-radius:5px;transition:width .8s ease}
-.mod-bar-score{font-size:.75rem;font-weight:600;width:28px;text-align:right;flex-shrink:0}
-
-/* INSIGHTS */
-.insights{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.25rem}
-.insight{background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:12px;padding:.9rem 1rem;font-size:.83rem;color:var(--light);line-height:1.5;display:flex;gap:.65rem;align-items:flex-start}
-.insight-ico{flex-shrink:0;font-size:1rem}
-
-/* ACTIONS */
-.actions{display:flex;flex-direction:column;gap:.5rem}
-.action{background:rgba(0,229,160,.05);border:1px solid rgba(0,229,160,.15);border-radius:12px;padding:.8rem 1rem;font-size:.83rem;color:var(--accent);display:flex;gap:.65rem;align-items:flex-start}
-.action-ico{flex-shrink:0}
-
-/* PROMPT TOOL */
-.prompt-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:1.75rem;margin-bottom:1.25rem}
-.prompt-title{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:.35rem}
-.prompt-sub{font-size:.82rem;color:var(--muted);margin-bottom:1.25rem}
-.prompt-inputs{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.25rem}
-.prompt-field{display:flex;flex-direction:column;gap:.3rem}
-.prompt-field label{font-size:.78rem;color:var(--light);font-weight:500}
-.prompt-field input,.prompt-field textarea{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:.65rem .9rem;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s}
-.prompt-field input:focus,.prompt-field textarea:focus{border-color:rgba(0,229,160,.35)}
-.prompt-field input::placeholder,.prompt-field textarea::placeholder{color:var(--muted)}
-.gen-btn{background:var(--accent);color:#07090F;border:none;border-radius:50px;padding:.75rem 1.5rem;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.9rem;cursor:pointer;transition:all .2s}
-.gen-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,229,160,.25)}
-.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.output-box{background:rgba(0,229,160,.04);border:1px solid rgba(0,229,160,.15);border-radius:14px;padding:1.25rem;margin-top:1rem;font-size:.85rem;color:var(--light);line-height:1.7;white-space:pre-wrap;display:none}
-.output-box.show{display:block}
-.output-box.loading::after{content:'...';animation:dots 1.2s infinite}
-@keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
-.copy-btn{margin-top:.75rem;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--light);border-radius:50px;padding:.5rem 1.1rem;font-size:.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
-.copy-btn:hover{background:rgba(255,255,255,.1)}
-
-/* MESSAGES */
-.msgs{display:flex;flex-direction:column;gap:1rem}
-.msg-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
-.msg-header{padding:.9rem 1.25rem;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
-.msg-title{font-size:.88rem;font-weight:500;display:flex;align-items:center;gap:.5rem}
-.msg-context{font-size:.72rem;color:var(--muted)}
-.msg-body{padding:1.1rem 1.25rem;font-size:.85rem;color:var(--light);line-height:1.7;white-space:pre-wrap}
-.copy-msg{background:none;border:1px solid var(--border);color:var(--muted);border-radius:50px;padding:.35rem .9rem;font-size:.72rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
-.copy-msg:hover{color:var(--white);border-color:rgba(255,255,255,.2)}
-.copy-msg.copied{color:var(--accent);border-color:rgba(0,229,160,.3)}
-
-/* SUCCESS MODAL */
-#success{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center}
-#success.show{display:flex}
-.success-box{background:#0E1420;border:1px solid rgba(0,229,160,.3);border-radius:24px;padding:2.5rem;text-align:center;max-width:380px;margin:1rem}
-.success-icon{font-size:3rem;margin-bottom:1rem}
-.success-title{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:.5rem}
-.success-msg{font-size:.88rem;color:var(--light);margin-bottom:1.5rem;line-height:1.6}
-.success-close{background:var(--accent);color:#07090F;border:none;border-radius:50px;padding:.7rem 1.75rem;font-weight:600;font-size:.9rem;cursor:pointer;font-family:'DM Sans',sans-serif}
-
-/* TOAST */
-#toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--accent);color:#07090F;padding:.65rem 1.4rem;border-radius:50px;font-weight:500;font-size:.85rem;z-index:300;transition:transform .35s cubic-bezier(.34,1.56,.64,1);white-space:nowrap}
-#toast.show{transform:translateX(-50%) translateY(0)}
-
-/* DIVIDER */
-.divider{height:1px;background:var(--border);margin:1.5rem 0}
-.sec-title{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:.35rem}
-.sec-sub{font-size:.85rem;color:var(--muted);margin-bottom:1.5rem}
-
-@media(max-width:600px){
-  .info-grid,.field-row{grid-template-columns:1fr}
-  .nav-tabs .tab{font-size:.75rem;padding:.4rem .65rem}
-  .score-main{flex-direction:column;text-align:center}
-}
+body{font-family:'DM Sans',sans-serif;background:#07090F;color:#F1EDE6;overflow-x:hidden}
+input,textarea,select{font-family:'DM Sans',sans-serif}
+input[type=range]{accent-color:#00E5A0;cursor:pointer;width:100%}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#1f2937;border-radius:4px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
 </head>
 <body>
-
-<!-- NAV -->
-<nav>
-  <div class="logo">Life<span>OS</span> <span style="font-size:.72rem;font-family:'DM Sans',sans-serif;color:var(--muted);font-weight:400">Beta</span></div>
-  <div class="nav-tabs">
-    <button class="tab active" onclick="showTab('bienvenida')">👋 Inicio</button>
-    <button class="tab" onclick="showTab('onboarding')">📋 Onboarding</button>
-    <button class="tab" onclick="showTab('reporte')">📊 Reporte</button>
-    <button class="tab" onclick="showTab('copiloto')">🤖 Copiloto</button>
-    <button class="tab" onclick="showTab('mensajes')">💬 Mensajes</button>
-  </div>
-  <div class="beta-badge">● Beta activa</div>
-</nav>
-
-<!-- ══════════════════════════════════════
-     TAB 1: BIENVENIDA
-══════════════════════════════════════ -->
-<div class="section active" id="tab-bienvenida">
-  <div class="welcome-hero">
-    <span class="big-icon">🧠</span>
-    <h1>Bienvenido a la beta de <em>LifeOS</em></h1>
-    <p class="hero-sub">Eres parte del grupo selecto que va a ayudar a construir el sistema operativo de vida más poderoso de Latinoamérica. Esto es lo que pasa ahora:</p>
-  </div>
-
-  <div class="steps-list">
-    <div class="step-item">
-      <div class="step-num">1</div>
-      <div class="step-content">
-        <div class="step-title">Llena tu onboarding esta semana</div>
-        <div class="step-desc">5 preguntas simples sobre tu vida, metas y rutina. Nos toma 3 minutos y es la base de todo lo que viene.</div>
-        <span class="step-tag" style="background:rgba(0,229,160,.1);color:var(--accent)">→ Tab "Onboarding"</span>
-      </div>
-    </div>
-    <div class="step-item">
-      <div class="step-num">2</div>
-      <div class="step-content">
-        <div class="step-title">Recibe tu primer score de vida el lunes</div>
-        <div class="step-desc">Cada lunes te llegará por WhatsApp tu score semanal personalizado con 3 insights y 2 acciones concretas. No es data genérica — es tuyo.</div>
-        <span class="step-tag" style="background:rgba(167,139,250,.1);color:var(--purple)">→ Tab "Reporte" para ver ejemplo</span>
-      </div>
-    </div>
-    <div class="step-item">
-      <div class="step-num">3</div>
-      <div class="step-content">
-        <div class="step-title">Cuéntanos qué sirve y qué no</div>
-        <div class="step-desc">Cada dos semanas hacemos una videollamada de 20 minutos. Tu feedback construye la app real. Eres co-creador, no solo usuario.</div>
-        <span class="step-tag" style="background:rgba(252,211,77,.1);color:var(--gold)">20 min cada 2 semanas</span>
-      </div>
-    </div>
-    <div class="step-item">
-      <div class="step-num">4</div>
-      <div class="step-content">
-        <div class="step-title">Primer mes completamente gratis</div>
-        <div class="step-desc">Sin costo, sin tarjeta. Si al mes decides continuar, el plan Pro es $18.000 COP/mes. Si no, nos dices y listo — sin presión.</div>
-        <span class="step-tag" style="background:rgba(96,165,250,.1);color:var(--blue)">Gratis · 30 días</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="info-grid">
-    <div class="info-card">
-      <div class="info-tag">Tu compromiso</div>
-      <div class="info-title">Lo que necesitamos de ti</div>
-      <div class="info-body">• Llenar el onboarding esta semana<br>• Responder el check-in semanal (2 min)<br>• Una llamada de feedback al mes<br>• Honestidad total — buena o mala</div>
-    </div>
-    <div class="info-card">
-      <div class="info-tag">Lo que recibes</div>
-      <div class="info-title">Lo que te damos</div>
-      <div class="info-body">• Score de vida semanal personalizado<br>• 3 insights accionables cada lunes<br>• Acceso vitalicio Pro si llegas al mes 3<br>• Tu nombre en los créditos de la app</div>
-    </div>
-  </div>
-
-  <div style="text-align:center;margin-top:1.5rem">
-    <button class="submit-btn" style="max-width:320px" onclick="showTab('onboarding')">Empezar mi onboarding →</button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     TAB 2: ONBOARDING
-══════════════════════════════════════ -->
-<div class="section" id="tab-onboarding">
-  <div class="sec-title">Tu perfil de vida</div>
-  <div class="sec-sub">Esta información es 100% confidencial y solo se usa para personalizar tu score semanal. Toma 3-4 minutos.</div>
-
-  <div class="form-section">
-    <div class="form-title">Información básica</div>
-    <div class="form-sub">Cuéntanos quién eres y qué buscas.</div>
-
-    <div class="field-row">
-      <div class="field">
-        <label>Nombre <span>*</span></label>
-        <input type="text" id="f-nombre" placeholder="¿Cómo te llamamos?">
-      </div>
-      <div class="field">
-        <label>Ciudad <span>*</span></label>
-        <input type="text" id="f-ciudad" placeholder="Bogotá, Medellín...">
-      </div>
-    </div>
-
-    <div class="field">
-      <label>¿A qué te dedicas? <span>*</span></label>
-      <select id="f-ocupacion">
-        <option value="">Selecciona una opción</option>
-        <option>Empleado en empresa</option>
-        <option>Emprendedor / dueño de negocio</option>
-        <option>Freelancer / independiente</option>
-        <option>Estudiante</option>
-        <option>Otro</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>¿Cuál es tu mayor desafío de vida ahora mismo? <span>*</span></label>
-      <textarea id="f-desafio" rows="3" placeholder="Ej: no llego a fin de mes, no tengo tiempo para hacer ejercicio, siento que no avanzo en el trabajo..."></textarea>
-    </div>
-  </div>
-
-  <div class="form-section">
-    <div class="form-title">Tus módulos</div>
-    <div class="form-sub">Del 1 al 10, ¿cómo te sientes en cada área esta semana?</div>
-
-    <div class="field">
-      <label>💰 Finanzas — ¿Cómo vas con tu dinero?</label>
-      <div class="range-wrap">
-        <span style="font-size:.75rem;color:var(--muted)">Mal</span>
-        <input type="range" id="r-finanzas" min="1" max="10" value="5" oninput="updateRange('finanzas',this.value)">
-        <span style="font-size:.75rem;color:var(--muted)">Bien</span>
-        <div class="range-val" id="v-finanzas">5</div>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>🏃 Salud — ¿Cómo estás físicamente?</label>
-      <div class="range-wrap">
-        <span style="font-size:.75rem;color:var(--muted)">Mal</span>
-        <input type="range" id="r-salud" min="1" max="10" value="5" oninput="updateRange('salud',this.value)">
-        <span style="font-size:.75rem;color:var(--muted)">Bien</span>
-        <div class="range-val" id="v-salud">5</div>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>🧘 Mental — ¿Cómo está tu cabeza y tu energía?</label>
-      <div class="range-wrap">
-        <span style="font-size:.75rem;color:var(--muted)">Agotado</span>
-        <input type="range" id="r-mental" min="1" max="10" value="5" oninput="updateRange('mental',this.value)">
-        <span style="font-size:.75rem;color:var(--muted)">Excelente</span>
-        <div class="range-val" id="v-mental">5</div>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>🎯 Productividad — ¿Estás avanzando en lo que importa?</label>
-      <div class="range-wrap">
-        <span style="font-size:.75rem;color:var(--muted)">Estancado</span>
-        <input type="range" id="r-trabajo" min="1" max="10" value="5" oninput="updateRange('trabajo',this.value)">
-        <span style="font-size:.75rem;color:var(--muted)">Volando</span>
-        <div class="range-val" id="v-trabajo">5</div>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>🌱 Hábitos — ¿Estás siendo consistente con tus rutinas?</label>
-      <div class="range-wrap">
-        <span style="font-size:.75rem;color:var(--muted)">Nada</span>
-        <input type="range" id="r-habitos" min="1" max="10" value="5" oninput="updateRange('habitos',this.value)">
-        <span style="font-size:.75rem;color:var(--muted)">Todo</span>
-        <div class="range-val" id="v-habitos">5</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="form-section">
-    <div class="form-title">Una pregunta más</div>
-    <div class="form-sub">Esta es la más importante de todas.</div>
-
-    <div class="field">
-      <label>Si LifeOS pudiera hacer una sola cosa perfectamente por ti, ¿cuál sería? <span>*</span></label>
-      <textarea id="f-wish" rows="3" placeholder="Sé específico. No hay respuesta correcta o incorrecta."></textarea>
-    </div>
-
-    <div class="field">
-      <label>¿Cómo prefieres recibir tu reporte semanal?</label>
-      <select id="f-canal">
-        <option>WhatsApp (mensaje de texto)</option>
-        <option>Email</option>
-        <option>Ambos</option>
-      </select>
-    </div>
-
-    <button class="submit-btn" onclick="submitOnboarding()">Enviar mi perfil y empezar →</button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     TAB 3: REPORTE DE EJEMPLO
-══════════════════════════════════════ -->
-<div class="section" id="tab-reporte">
-  <div class="sec-title">Ejemplo de reporte semanal</div>
-  <div class="sec-sub">Esto es lo que recibirás cada lunes. Personalizado con tu nombre y tus datos reales.</div>
-
-  <div class="report-card">
-    <div class="report-header">
-      <div class="report-user">
-        <div class="avatar">F</div>
-        <div>
-          <div class="report-name">Frank · Bogotá</div>
-          <div class="report-date">Lunes 19 de mayo, 2026</div>
-        </div>
-      </div>
-      <div class="report-week">Semana 3 de beta</div>
-    </div>
-
-    <div class="score-main">
-      <div class="score-ring-wrap">
-        <svg width="96" height="96" viewBox="0 0 96 96">
-          <circle cx="48" cy="48" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="8"/>
-          <circle cx="48" cy="48" r="40" fill="none" stroke="#00E5A0" stroke-width="8"
-            stroke-dasharray="251.3" stroke-dashoffset="67.85" stroke-linecap="round"
-            style="filter:drop-shadow(0 0 6px rgba(0,229,160,0.35))"/>
-        </svg>
-        <div class="score-center">
-          <div class="score-big">74</div>
-          <div class="score-lbl">/100</div>
-        </div>
-      </div>
-      <div class="score-right">
-        <div class="score-title">Semana sólida con un punto ciego</div>
-        <div class="score-msg">Estás progresando bien en salud y trabajo, pero tu módulo mental lleva 3 semanas bajando. No es una crisis — es una señal temprana. Esta semana lo atacamos.</div>
-      </div>
-    </div>
-
-    <div class="mod-bars">
-      <div class="mod-bar-row">
-        <div class="mod-bar-label"><span>💰</span> Finanzas</div>
-        <div class="mod-bar-track"><div class="mod-bar-fill" style="width:72%;background:#00E5A0"></div></div>
-        <div class="mod-bar-score" style="color:#00E5A0">72</div>
-      </div>
-      <div class="mod-bar-row">
-        <div class="mod-bar-label"><span>🏃</span> Salud</div>
-        <div class="mod-bar-track"><div class="mod-bar-fill" style="width:85%;background:#FF6B6B"></div></div>
-        <div class="mod-bar-score" style="color:#FF6B6B">85</div>
-      </div>
-      <div class="mod-bar-row">
-        <div class="mod-bar-label"><span>🧘</span> Mental</div>
-        <div class="mod-bar-track"><div class="mod-bar-fill" style="width:61%;background:#A78BFA"></div></div>
-        <div class="mod-bar-score" style="color:#A78BFA">61</div>
-      </div>
-      <div class="mod-bar-row">
-        <div class="mod-bar-label"><span>🎯</span> Trabajo</div>
-        <div class="mod-bar-track"><div class="mod-bar-fill" style="width:78%;background:#FCD34D"></div></div>
-        <div class="mod-bar-score" style="color:#FCD34D">78</div>
-      </div>
-      <div class="mod-bar-row">
-        <div class="mod-bar-label"><span>🌱</span> Hábitos</div>
-        <div class="mod-bar-track"><div class="mod-bar-fill" style="width:83%;background:#34D399"></div></div>
-        <div class="mod-bar-score" style="color:#34D399">83</div>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div style="font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">3 Insights de esta semana</div>
-    <div class="insights">
-      <div class="insight"><div class="insight-ico">💰</div><div>Gastaste $180k más de lo normal en comida esta semana. No es malo — pero si se repite 2 semanas más, tu meta de ahorro del mes se cae. Ojo.</div></div>
-      <div class="insight"><div class="insight-ico">😴</div><div>Dormiste un promedio de 5.8h los últimos 5 días. Hay correlación directa con tu score mental bajo. No es falta de disciplina — es falta de información.</div></div>
-      <div class="insight"><div class="insight-ico">🔥</div><div>Llevas 21 días consecutivos cumpliendo tu hábito de ejercicio. Eso es un hito real. La racha está en el nivel más alto desde que empezamos.</div></div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div style="font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">2 Acciones para esta semana</div>
-    <div class="actions">
-      <div class="action"><div class="action-ico">→</div><div><strong>Esta noche:</strong> Ponle alarma 45 minutos antes de tu hora normal de dormir. Solo esta semana. El sueño es el palanca más fácil para subir tu score mental.</div></div>
-      <div class="action"><div class="action-ico">→</div><div><strong>El viernes:</strong> Transfiere $80.000 COP a tu cuenta de ahorros antes de que llegue el fin de semana. Pequeño, constante, funciona.</div></div>
-    </div>
-  </div>
-
-  <div style="background:rgba(0,229,160,.05);border:1px solid rgba(0,229,160,.15);border-radius:14px;padding:1.1rem 1.4rem;font-size:.83rem;color:var(--light);line-height:1.6">
-    <strong style="color:var(--accent)">¿Cómo se genera esto?</strong> Cada domingo te llega un check-in de 5 preguntas por WhatsApp. Con tus respuestas y el historial de semanas anteriores, la IA genera este reporte en segundos. Tú lo recibes el lunes en la mañana.
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     TAB 4: COPILOTO IA
-══════════════════════════════════════ -->
-<div class="section" id="tab-copiloto">
-  <div class="sec-title">Generador de reporte semanal</div>
-  <div class="sec-sub">Ingresa los datos del beta tester y genera su reporte personalizado con IA en segundos.</div>
-
-  <div class="prompt-box">
-    <div class="prompt-title">Datos del beta tester</div>
-    <div class="prompt-sub">Llena con las respuestas del check-in semanal del usuario.</div>
-
-    <div class="prompt-inputs">
-      <div class="field-row">
-        <div class="prompt-field">
-          <label>Nombre</label>
-          <input type="text" id="p-nombre" placeholder="Nombre del usuario">
-        </div>
-        <div class="prompt-field">
-          <label>Semana #</label>
-          <input type="number" id="p-semana" placeholder="1" min="1" max="52">
-        </div>
-      </div>
-
-      <div class="prompt-field">
-        <label>¿Cómo estuvo su semana? (resumen libre)</label>
-        <textarea id="p-semana-resumen" rows="2" placeholder="Ej: semana muy estresante, no durmió bien, cumplió con ejercicio, gastó más de lo normal en salidas..."></textarea>
-      </div>
-
-      <div class="field-row">
-        <div class="prompt-field">
-          <label>Score finanzas (1-10)</label>
-          <input type="number" id="p-fin" min="1" max="10" placeholder="7">
-        </div>
-        <div class="prompt-field">
-          <label>Score salud (1-10)</label>
-          <input type="number" id="p-sal" min="1" max="10" placeholder="8">
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="prompt-field">
-          <label>Score mental (1-10)</label>
-          <input type="number" id="p-men" min="1" max="10" placeholder="6">
-        </div>
-        <div class="prompt-field">
-          <label>Score productividad (1-10)</label>
-          <input type="number" id="p-pro" min="1" max="10" placeholder="7">
-        </div>
-      </div>
-
-      <div class="prompt-field">
-        <label>Mayor logro de la semana</label>
-        <input type="text" id="p-logro" placeholder="Ej: cumplí todos mis hábitos, cerré un cliente...">
-      </div>
-      <div class="prompt-field">
-        <label>Mayor obstáculo o preocupación</label>
-        <input type="text" id="p-obstaculo" placeholder="Ej: gasté de más, no dormí bien, mucho estrés...">
-      </div>
-    </div>
-
-    <button class="gen-btn" id="gen-btn" onclick="generarReporte()">✨ Generar reporte con IA</button>
-
-    <div class="output-box" id="output"></div>
-    <button class="copy-btn" id="copy-output" onclick="copyOutput()" style="display:none">Copiar para WhatsApp 📋</button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     TAB 5: MENSAJES
-══════════════════════════════════════ -->
-<div class="section" id="tab-mensajes">
-  <div class="sec-title">Kit de mensajes</div>
-  <div class="sec-sub">Todos los mensajes que necesitas para reclutar y gestionar beta testers. Listos para copiar y pegar.</div>
-
-  <div class="msgs">
-
-    <div class="msg-card">
-      <div class="msg-header">
-        <div class="msg-title">👋 Invitación inicial</div>
-        <div style="display:flex;align-items:center;gap:.75rem">
-          <div class="msg-context">Para personas cercanas</div>
-          <button class="copy-msg" onclick="copyMsg(this)">Copiar</button>
-        </div>
-      </div>
-      <div class="msg-body">Ey [nombre] 👋 Estoy construyendo algo y necesito tu opinión honesta.
-
-Se llama LifeOS — básicamente es un copiloto de IA que analiza tu semana (finanzas, salud, trabajo, hábitos) y te da un score de vida con acciones concretas. Tipo tener un asistente personal que te dice qué hacer sin que tengas que preguntarle.
-
-Estoy buscando 10 personas en Colombia para probarlo gratis el primer mes. El compromiso es mínimo: llenar un formulario corto y una llamada de 20 min al mes.
-
-¿Serías una de ellas? 🙏</div>
-    </div>
-
-    <div class="msg-card">
-      <div class="msg-header">
-        <div class="msg-title">📲 Para conocidos (tono formal)</div>
-        <div style="display:flex;align-items:center;gap:.75rem">
-          <div class="msg-context">LinkedIn / conocidos de trabajo</div>
-          <button class="copy-msg" onclick="copyMsg(this)">Copiar</button>
-        </div>
-      </div>
-      <div class="msg-body">Hola [nombre], ¿cómo estás?
-
-Te escribo porque estoy lanzando LifeOS, un servicio que usa IA para conectar salud, finanzas y productividad en un solo score semanal personalizado.
-
-Estoy en fase beta y busco 10 personas en Colombia con perfil emprendedor/profesional para probarlo gratis durante un mes y darme feedback real.
-
-¿Estarías interesado/a en ser parte de los primeros? 🚀</div>
-    </div>
-
-    <div class="msg-card">
-      <div class="msg-header">
-        <div class="msg-title">✅ Confirmación de ingreso</div>
-        <div style="display:flex;align-items:center;gap:.75rem">
-          <div class="msg-context">Cuando alguien dice sí</div>
-          <button class="copy-msg" onclick="copyMsg(this)">Copiar</button>
-        </div>
-      </div>
-      <div class="msg-body">¡Genial [nombre]! 🎉 Bienvenido/a a la beta de LifeOS.
-
-Aquí está tu link de onboarding — son 4 minutos máximo y es la base de todo:
-👉 [LINK A ESTE DOCUMENTO]
-
-Una vez que lo llenes, el primer lunes ya recibes tu score de vida.
-
-Cualquier pregunta me escribes directamente. ¡Gracias por confiar en esto! 🙏</div>
-    </div>
-
-    <div class="msg-card">
-      <div class="msg-header">
-        <div class="msg-title">📊 Check-in semanal</div>
-        <div style="display:flex;align-items:center;gap:.75rem">
-          <div class="msg-context">Enviar cada domingo 6pm</div>
-          <button class="copy-msg" onclick="copyMsg(this)">Copiar</button>
-        </div>
-      </div>
-      <div class="msg-body">Ey [nombre] 👋 ¡Es domingo, hora del check-in semanal de LifeOS!
-
-Respóndeme estas 5 preguntas (puedes responder con números o texto corto):
-
-1️⃣ ¿Cómo estuvo tu semana del 1 al 10?
-2️⃣ ¿Cuánto dormiste en promedio esta semana?
-3️⃣ ¿Cuál fue tu mayor logro?
-4️⃣ ¿Qué te generó más estrés o preocupación?
-5️⃣ ¿Cumpliste tus hábitos principales? (sí / parcial / no)
-
-Con esto te genero tu reporte el lunes. ¡Gracias! 🙌</div>
-    </div>
-
-    <div class="msg-card">
-      <div class="msg-header">
-        <div class="msg-title">📈 Entrega del reporte</div>
-        <div style="display:flex;align-items:center;gap:.75rem">
-          <div class="msg-context">Cada lunes con el reporte</div>
-          <button class="copy-msg" onclick="copyMsg(this)">Copiar</button>
-        </div>
-      </div>
-      <div class="msg-body">Buenos días [nombre] ☀️ Aquí está tu reporte LifeOS de la semana:
-
-🧠 *SCORE DE VIDA: [X]/100*
-[↑/↓ X puntos vs semana pasada]
-
-📊 *Módulos:*
-💰 Finanzas: [X]/100
-🏃 Salud: [X]/100
-🧘 Mental: [X]/100
-🎯 Productividad: [X]/100
-🌱 Hábitos: [X]/100
-
-💡 *3 Insights:*
-→ [Insight 1]
-→ [Insight 2]
-→ [Insight 3]
-
-🎯 *2 Acciones esta semana:*
-✅ [Acción 1]
-✅ [Acción 2]
-
-¿Algo resuena especialmente? ¿Algo que no cuadra? Me dices. 👇</div>
-    </div>
-
-    <div class="msg-card">
-      <div class="msg-header">
-        <div class="msg-title">🔁 Seguimiento al feedback</div>
-        <div style="display:flex;align-items:center;gap:.75rem">
-          <div class="msg-context">Cada 2 semanas</div>
-          <button class="copy-msg" onclick="copyMsg(this)">Copiar</button>
-        </div>
-      </div>
-      <div class="msg-body">Ey [nombre], llevamos [X] semanas juntos en la beta 🙌
-
-Quería hacerte 3 preguntas rápidas:
-
-1. ¿Qué parte del reporte te ha sido más útil?
-2. ¿Qué le falta o qué cambiarías?
-3. Del 1 al 10, ¿qué tan probable es que pagues $18.000 COP/mes por esto cuando lancemos?
-
-Tu respuesta honesta vale más que cualquier cosa. ¡Gracias! 🙏</div>
-    </div>
-
-  </div>
-</div>
-
-<!-- SUCCESS MODAL -->
-<div id="success">
-  <div class="success-box">
-    <div class="success-icon">🎉</div>
-    <div class="success-title">¡Onboarding enviado!</div>
-    <div class="success-msg">Tu perfil fue guardado. El próximo lunes recibirás tu primer score de vida por WhatsApp. ¡Bienvenido a la beta de LifeOS!</div>
-    <button class="success-close" onclick="closeSuccess()">Perfecto, gracias →</button>
-  </div>
-</div>
-
-<div id="toast">✓ Copiado al portapapeles</div>
-
-<script>
-function showTab(id){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  const tabs = ['bienvenida','onboarding','reporte','copiloto','mensajes'];
-  document.querySelectorAll('.tab')[tabs.indexOf(id)].classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+// ── CONSTANTS ────────────────────────────────────────────
+const ADMIN_PASS = "lifeos2026";
+const DB_KEY = "lifeos-beta-db-v1";
+
+const MODULOS = [
+  { id:"finanzas", icon:"💰", label:"Finanzas",      color:"#00E5A0" },
+  { id:"salud",    icon:"🏃", label:"Salud",         color:"#FF6B6B" },
+  { id:"mental",   icon:"🧘", label:"Mental",        color:"#A78BFA" },
+  { id:"trabajo",  icon:"🎯", label:"Productividad", color:"#FCD34D" },
+  { id:"habitos",  icon:"🌱", label:"Hábitos",       color:"#34D399" },
+];
+
+const STATUS = {
+  nuevo:       { label:"Nuevo",        color:"#60A5FA", bg:"rgba(96,165,250,.12)"  },
+  activo:      { label:"Activo",       color:"#00E5A0", bg:"rgba(0,229,160,.12)"   },
+  seguimiento: { label:"Seguimiento",  color:"#FCD34D", bg:"rgba(252,211,77,.12)"  },
+  inactivo:    { label:"Inactivo",     color:"#6B7280", bg:"rgba(107,114,128,.12)" },
+};
+
+const C = {
+  bg:"#07090F", card:"#0E1420", card2:"#111827",
+  border:"rgba(255,255,255,0.07)",
+  accent:"#00E5A0", purple:"#A78BFA", coral:"#FF6B6B",
+  gold:"#FCD34D", blue:"#60A5FA",
+  white:"#F1EDE6", muted:"#6B7280", light:"#C9D1D9",
+};
+
+// ── STORAGE (localStorage) ────────────────────────────────
+function loadDB() {
+  try { return JSON.parse(localStorage.getItem(DB_KEY) || '{"submissions":[]}'); }
+  catch { return { submissions: [] }; }
+}
+function saveDB(data) {
+  try { localStorage.setItem(DB_KEY, JSON.stringify(data)); return true; }
+  catch { return false; }
 }
 
-function updateRange(id, val){
-  document.getElementById('v-'+id).textContent = val;
+// ── SMALL COMPONENTS ─────────────────────────────────────
+function Tag({ children, color="#00E5A0" }) {
+  return <div style={{fontSize:10,letterSpacing:3,textTransform:"uppercase",color,fontWeight:500,marginBottom:8}}>{children}</div>;
 }
 
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg || '✓ Copiado';
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2800);
+function Badge({ status }) {
+  const s = STATUS[status] || STATUS.nuevo;
+  return <span style={{background:s.bg,color:s.color,fontSize:11,fontWeight:600,padding:"3px 10px",borderRadius:50,border:`1px solid ${s.color}33`}}>{s.label}</span>;
 }
 
-function submitOnboarding(){
-  const nombre = document.getElementById('f-nombre').value.trim();
-  const desafio = document.getElementById('f-wish').value.trim();
-  if(!nombre || !desafio){
-    showToast('⚠️ Llena los campos obligatorios');
-    return;
-  }
-  document.getElementById('success').classList.add('show');
+function ScoreRing({ score, size=72, color="#00E5A0" }) {
+  const r = (size-10)/2, circ = 2*Math.PI*r, offset = circ-(score/100)*circ;
+  return (
+    <div style={{position:"relative",width:size,height:size,flexShrink:0}}>
+      <svg width={size} height={size} style={{transform:"rotate(-90deg)"}}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={7}/>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={7}
+          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+          style={{filter:`drop-shadow(0 0 5px ${color}55)`,transition:"stroke-dashoffset 1s ease"}}/>
+      </svg>
+      <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:size*.28,fontWeight:700,color,lineHeight:1}}>{score}</div>
+        <div style={{fontSize:9,color:C.muted}}>/ 100</div>
+      </div>
+    </div>
+  );
 }
 
-function closeSuccess(){
-  document.getElementById('success').classList.remove('show');
-  showTab('reporte');
+function ModBar({ icon, label, value, color }) {
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+      <span style={{fontSize:13,width:18}}>{icon}</span>
+      <span style={{fontSize:11,color:C.light,width:90,flexShrink:0}}>{label}</span>
+      <div style={{flex:1,height:4,background:"rgba(255,255,255,0.06)",borderRadius:4,overflow:"hidden"}}>
+        <div style={{width:`${value*10}%`,height:"100%",background:color,borderRadius:4,transition:"width .8s ease"}}/>
+      </div>
+      <span style={{fontSize:11,fontWeight:600,color,width:20,textAlign:"right",flexShrink:0}}>{value}</span>
+    </div>
+  );
 }
 
-async function generarReporte(){
-  const nombre = document.getElementById('p-nombre').value.trim() || 'Usuario';
-  const semana = document.getElementById('p-semana').value || '1';
-  const resumen = document.getElementById('p-semana-resumen').value.trim();
-  const fin = document.getElementById('p-fin').value || '5';
-  const sal = document.getElementById('p-sal').value || '5';
-  const men = document.getElementById('p-men').value || '5';
-  const pro = document.getElementById('p-pro').value || '5';
-  const logro = document.getElementById('p-logro').value.trim() || 'No especificado';
-  const obstaculo = document.getElementById('p-obstaculo').value.trim() || 'No especificado';
+function Toast({ msg }) {
+  if (!msg) return null;
+  return (
+    <div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:C.accent,color:"#07090F",padding:"10px 20px",borderRadius:50,fontSize:13,fontWeight:600,zIndex:999,whiteSpace:"nowrap",animation:"fadeUp .3s ease"}}>
+      {msg}
+    </div>
+  );
+}
 
-  if(!resumen){ showToast('⚠️ Describe cómo estuvo la semana'); return; }
+// ═══════════════════════════════════════════════════════════
+// FORM — Para beta testers
+// ═══════════════════════════════════════════════════════════
+function FormView({ onSuccess }) {
+  const [step, setStep] = useState(1);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    nombre:"", ciudad:"", whatsapp:"", ocupacion:"",
+    desafio:"", wish:"", canal:"WhatsApp",
+    finanzas:5, salud:5, mental:5, trabajo:5, habitos:5,
+  });
 
-  const btn = document.getElementById('gen-btn');
-  const output = document.getElementById('output');
-  const copyBtn = document.getElementById('copy-output');
+  const set = (k,v) => setForm(p=>({...p,[k]:v}));
+  const scoreCalc = () => Math.round((form.finanzas+form.salud+form.mental+form.trabajo+form.habitos)/5*10);
 
-  btn.disabled = true;
-  btn.textContent = 'Generando...';
-  output.textContent = '';
-  output.className = 'output-box show loading';
-  copyBtn.style.display = 'none';
-
-  const scoreTotal = Math.round((+fin + +sal + +men + +pro) / 4 * 10);
-
-  const prompt = `Eres el copiloto de vida de ${nombre} en LifeOS. Esta es su semana ${semana} en la beta.
-
-DATOS DE LA SEMANA:
-- Resumen: ${resumen}
-- Score finanzas: ${fin}/10
-- Score salud: ${sal}/10  
-- Score mental: ${men}/10
-- Score productividad: ${pro}/10
-- Mayor logro: ${logro}
-- Mayor obstáculo: ${obstaculo}
-- Score total calculado: ${scoreTotal}/100
-
-Genera un reporte semanal para enviar por WhatsApp con este formato EXACTO:
-
-🧠 SCORE DE VIDA: ${scoreTotal}/100
-[una línea de diagnóstico honesto y cálido]
-
-💡 3 INSIGHTS:
-→ [insight finanzas o hábito de gasto concreto]
-→ [insight salud o mental con dato específico]
-→ [insight productividad o hábito positivo o negativo]
-
-🎯 2 ACCIONES PARA ESTA SEMANA:
-✅ [acción concreta, específica, con día/hora si aplica]
-✅ [acción concreta, pequeña, alcanzable]
-
-Tono: cálido, directo, como un amigo muy inteligente. Máximo 200 palabras total. En español colombiano natural. Sin asteriscos innecesarios.`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{role: 'user', content: prompt}]
-      })
+  const handleSubmit = () => {
+    if (!form.nombre||!form.whatsapp||!form.desafio||!form.wish) return;
+    setSaving(true);
+    const db = loadDB();
+    db.submissions.push({
+      id: Date.now().toString(),
+      ...form,
+      score: scoreCalc(),
+      status:"nuevo",
+      fechaIngreso: new Date().toLocaleDateString("es-CO"),
+      notas:"",
     });
-    const data = await res.json();
-    const text = data.content?.[0]?.text || 'Error al generar el reporte.';
-    output.className = 'output-box show';
-    output.textContent = text;
-    copyBtn.style.display = 'inline-block';
-  } catch(e) {
-    output.className = 'output-box show';
-    output.textContent = 'Error de conexión. Verifica tu conexión a internet e intenta de nuevo.';
-  }
+    saveDB(db);
+    setTimeout(() => { setSaving(false); onSuccess(form.nombre); }, 600);
+  };
 
-  btn.disabled = false;
-  btn.textContent = '✨ Generar reporte con IA';
+  const inp = (id, ph, type="text") => (
+    <input type={type} value={form[id]} placeholder={ph}
+      onChange={e=>set(id,e.target.value)}
+      style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${C.border}`,borderRadius:12,padding:"11px 16px",color:C.white,fontSize:14,outline:"none"}}/>
+  );
+
+  const field = (label, req, children) => (
+    <div style={{marginBottom:20}}>
+      <label style={{display:"block",fontSize:13,fontWeight:500,color:C.light,marginBottom:6}}>
+        {label} {req && <span style={{color:C.accent}}>*</span>}
+      </label>
+      {children}
+    </div>
+  );
+
+  const slider = (id, label, icon, color) => (
+    <div style={{marginBottom:18}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+        <label style={{fontSize:13,color:C.light}}>{icon} {label}</label>
+        <span style={{background:`${color}18`,color,fontSize:13,fontWeight:700,padding:"2px 10px",borderRadius:50}}>{form[id]}</span>
+      </div>
+      <input type="range" min="1" max="10" value={form[id]} onChange={e=>set(id,+e.target.value)}/>
+      <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:C.muted,marginTop:2}}>
+        <span>Mal</span><span>Excelente</span>
+      </div>
+    </div>
+  );
+
+  const card = {background:C.card,border:`1px solid ${C.border}`,borderRadius:20,padding:24,marginBottom:20};
+
+  return (
+    <div style={{minHeight:"100vh",background:C.bg,paddingBottom:60}}>
+      {/* Header */}
+      <div style={{background:"rgba(14,20,32,.95)",borderBottom:`1px solid ${C.border}`,padding:"16px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:50}}>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:700}}>
+          Life<span style={{color:C.accent}}>OS</span>
+          <span style={{fontFamily:"'DM Sans',sans-serif",fontSize:11,color:C.muted,fontWeight:400,marginLeft:8}}>Beta</span>
+        </div>
+        <div style={{display:"flex",gap:6}}>
+          {[1,2,3].map(i=>(
+            <div key={i} style={{width:28,height:4,borderRadius:4,background:step>=i?C.accent:"rgba(255,255,255,.1)",transition:"background .3s"}}/>
+          ))}
+        </div>
+      </div>
+
+      <div style={{maxWidth:520,margin:"0 auto",padding:"32px 20px"}}>
+
+        {/* STEP 1 */}
+        {step===1 && (
+          <div style={{animation:"fadeUp .5s ease"}}>
+            <div style={{textAlign:"center",marginBottom:32}}>
+              <div style={{fontSize:44,marginBottom:12}}>👋</div>
+              <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:28,marginBottom:10}}>
+                Bienvenido a la beta de <em style={{color:C.accent}}>LifeOS</em>
+              </h1>
+              <p style={{color:C.light,fontSize:14,lineHeight:1.7,fontWeight:300}}>
+                Eres parte del grupo selecto que va a construir el copiloto de vida más poderoso de Colombia. Este formulario toma 3 minutos.
+              </p>
+            </div>
+            <div style={card}>
+              <Tag>Información básica</Tag>
+              {field("¿Cómo te llamamos?", true, inp("nombre","Tu nombre"))}
+              {field("Ciudad", true, inp("ciudad","Bogotá, Medellín, Cali..."))}
+              {field("WhatsApp (para tu reporte semanal)", true, inp("whatsapp","+57 300 000 0000","tel"))}
+              {field("¿A qué te dedicas?", true,
+                <select value={form.ocupacion} onChange={e=>set("ocupacion",e.target.value)}
+                  style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${C.border}`,borderRadius:12,padding:"11px 16px",color:form.ocupacion?C.white:C.muted,fontSize:14,outline:"none"}}>
+                  <option value="">Selecciona una opción</option>
+                  <option>Empleado en empresa</option>
+                  <option>Emprendedor / dueño de negocio</option>
+                  <option>Freelancer / independiente</option>
+                  <option>Estudiante</option>
+                  <option>Otro</option>
+                </select>
+              )}
+            </div>
+            <button onClick={()=>{if(form.nombre&&form.whatsapp&&form.ocupacion)setStep(2);}}
+              style={{width:"100%",background:C.accent,color:"#07090F",border:"none",borderRadius:50,padding:14,fontSize:15,fontWeight:600,cursor:"pointer"}}>
+              Continuar →
+            </button>
+          </div>
+        )}
+
+        {/* STEP 2 */}
+        {step===2 && (
+          <div style={{animation:"fadeUp .5s ease"}}>
+            <div style={{marginBottom:24}}>
+              <Tag>Tu score inicial</Tag>
+              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:22,marginBottom:6}}>¿Cómo estás esta semana?</h2>
+              <p style={{fontSize:13,color:C.muted}}>Del 1 al 10 en cada área. Sé honesto — esto construye tu score de vida base.</p>
+            </div>
+            <div style={card}>
+              {slider("finanzas","Finanzas","💰","#00E5A0")}
+              {slider("salud","Salud","🏃","#FF6B6B")}
+              {slider("mental","Mental","🧘","#A78BFA")}
+              {slider("trabajo","Productividad","🎯","#FCD34D")}
+              {slider("habitos","Hábitos","🌱","#34D399")}
+            </div>
+            <div style={{background:"rgba(0,229,160,.06)",border:`1px solid rgba(0,229,160,.2)`,borderRadius:16,padding:16,display:"flex",alignItems:"center",gap:16,marginBottom:20}}>
+              <ScoreRing score={scoreCalc()} size={64}/>
+              <div>
+                <div style={{fontSize:12,color:C.muted,marginBottom:3}}>Tu score inicial de vida</div>
+                <div style={{fontSize:13,color:C.light,lineHeight:1.5}}>Cada semana este número cambia con tu contexto real.</div>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={()=>setStep(1)} style={{flex:1,background:"rgba(255,255,255,.05)",color:C.white,border:`1px solid ${C.border}`,borderRadius:50,padding:13,fontSize:14,cursor:"pointer"}}>← Atrás</button>
+              <button onClick={()=>setStep(3)} style={{flex:2,background:C.accent,color:"#07090F",border:"none",borderRadius:50,padding:13,fontSize:14,fontWeight:600,cursor:"pointer"}}>Continuar →</button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3 */}
+        {step===3 && (
+          <div style={{animation:"fadeUp .5s ease"}}>
+            <div style={{marginBottom:24}}>
+              <Tag>La pregunta más importante</Tag>
+              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:22,marginBottom:6}}>Cuéntanos qué necesitas</h2>
+              <p style={{fontSize:13,color:C.muted}}>Esta información personaliza todo lo que recibirás.</p>
+            </div>
+            <div style={card}>
+              {field("¿Cuál es tu mayor desafío de vida ahora mismo?", true,
+                <textarea value={form.desafio} onChange={e=>set("desafio",e.target.value)} rows={3}
+                  placeholder="Ej: no llego a fin de mes, mucho estrés, no tengo tiempo para ejercicio..."
+                  style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${C.border}`,borderRadius:12,padding:"11px 16px",color:C.white,fontSize:14,outline:"none",resize:"vertical"}}/>
+              )}
+              {field("Si LifeOS pudiera hacer una sola cosa perfecta por ti, ¿cuál sería?", true,
+                <textarea value={form.wish} onChange={e=>set("wish",e.target.value)} rows={3}
+                  placeholder="Sé específico — no hay respuesta incorrecta..."
+                  style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${C.border}`,borderRadius:12,padding:"11px 16px",color:C.white,fontSize:14,outline:"none",resize:"vertical"}}/>
+              )}
+              {field("¿Cómo prefieres recibir tu reporte?", false,
+                <select value={form.canal} onChange={e=>set("canal",e.target.value)}
+                  style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${C.border}`,borderRadius:12,padding:"11px 16px",color:C.white,fontSize:14,outline:"none"}}>
+                  <option>WhatsApp</option><option>Email</option><option>Ambos</option>
+                </select>
+              )}
+            </div>
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={()=>setStep(2)} style={{flex:1,background:"rgba(255,255,255,.05)",color:C.white,border:`1px solid ${C.border}`,borderRadius:50,padding:13,fontSize:14,cursor:"pointer"}}>← Atrás</button>
+              <button onClick={handleSubmit} disabled={saving||!form.desafio||!form.wish}
+                style={{flex:2,background:saving?"rgba(0,229,160,.4)":C.accent,color:"#07090F",border:"none",borderRadius:50,padding:13,fontSize:14,fontWeight:600,cursor:saving?"not-allowed":"pointer",transition:"all .2s"}}>
+                {saving ? "Guardando..." : "¡Estoy dentro! →"}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
-function copyOutput(){
-  const text = document.getElementById('output').textContent;
-  navigator.clipboard.writeText(text).then(()=>{
-    showToast('✓ Reporte copiado — pégalo en WhatsApp');
-    document.getElementById('copy-output').textContent = '✓ Copiado';
-    setTimeout(()=>{ document.getElementById('copy-output').textContent = 'Copiar para WhatsApp 📋'; }, 2500);
-  });
+// ═══════════════════════════════════════════════════════════
+// ADMIN LOGIN
+// ═══════════════════════════════════════════════════════════
+function AdminLogin({ onLogin }) {
+  const [pass, setPass] = useState("");
+  const [err, setErr] = useState(false);
+  const tryLogin = () => { if(pass===ADMIN_PASS) onLogin(); else setErr(true); };
+  return (
+    <div style={{minHeight:"100vh",background:C.bg,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:24,padding:40,maxWidth:340,width:"100%",textAlign:"center"}}>
+        <div style={{fontSize:40,marginBottom:16}}>🔐</div>
+        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:22,marginBottom:8}}>Admin LifeOS</h2>
+        <p style={{fontSize:13,color:C.muted,marginBottom:24}}>Acceso exclusivo para el fundador</p>
+        <input type="password" value={pass} onChange={e=>{setPass(e.target.value);setErr(false);}}
+          onKeyDown={e=>e.key==="Enter"&&tryLogin()}
+          placeholder="Contraseña"
+          style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${err?C.coral:C.border}`,borderRadius:12,padding:"12px 16px",color:C.white,fontSize:14,outline:"none",marginBottom:12,textAlign:"center"}}/>
+        {err && <div style={{color:C.coral,fontSize:12,marginBottom:10}}>Contraseña incorrecta</div>}
+        <button onClick={tryLogin}
+          style={{width:"100%",background:C.accent,color:"#07090F",border:"none",borderRadius:50,padding:13,fontSize:14,fontWeight:600,cursor:"pointer"}}>
+          Entrar →
+        </button>
+        <div style={{fontSize:11,color:C.muted,marginTop:16}}>Clave: lifeos2026</div>
+      </div>
+    </div>
+  );
 }
 
-function copyMsg(btn){
-  const text = btn.closest('.msg-card').querySelector('.msg-body').textContent;
-  navigator.clipboard.writeText(text).then(()=>{
-    btn.textContent = '✓ Copiado';
-    btn.classList.add('copied');
-    showToast('✓ Mensaje copiado');
-    setTimeout(()=>{ btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2500);
-  });
+// ═══════════════════════════════════════════════════════════
+// ADMIN PANEL
+// ═══════════════════════════════════════════════════════════
+function AdminPanel({ onLogout }) {
+  const [db, setDb] = useState(loadDB());
+  const [selected, setSelected] = useState(null);
+  const [view, setView] = useState("dashboard");
+  const [notas, setNotas] = useState("");
+  const [toast, setToast] = useState("");
+
+  const refresh = () => setDb(loadDB());
+  const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(""),2800); };
+
+  const updateStatus = (id, status) => {
+    const d = loadDB();
+    d.submissions = d.submissions.map(s=>s.id===id?{...s,status}:s);
+    saveDB(d); setDb(d);
+    if(selected?.id===id) setSelected(d.submissions.find(s=>s.id===id));
+    showToast("Estado actualizado ✓");
+  };
+
+  const saveNotas = (id) => {
+    const d = loadDB();
+    d.submissions = d.submissions.map(s=>s.id===id?{...s,notas}:s);
+    saveDB(d); setDb(d); showToast("Notas guardadas ✓");
+  };
+
+  const deleteEntry = (id) => {
+    if(!window.confirm("¿Eliminar este beta tester?")) return;
+    const d = loadDB();
+    d.submissions = d.submissions.filter(s=>s.id!==id);
+    saveDB(d); setDb(d); setSelected(null); showToast("Eliminado");
+  };
+
+  const subs = db.submissions;
+  const avgScore = subs.length ? Math.round(subs.reduce((a,s)=>a+s.score,0)/subs.length) : 0;
+  const card = {background:C.card,border:`1px solid ${C.border}`,borderRadius:16,padding:20};
+
+  return (
+    <div style={{minHeight:"100vh",background:C.bg}}>
+      {/* NAV */}
+      <div style={{background:"rgba(14,20,32,.95)",borderBottom:`1px solid ${C.border}`,padding:"14px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:50,flexWrap:"wrap",gap:8}}>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:20,fontWeight:700}}>
+          Life<span style={{color:C.accent}}>OS</span>
+          <span style={{fontFamily:"'DM Sans',sans-serif",fontSize:11,color:C.purple,fontWeight:500,marginLeft:8}}>Admin</span>
+        </div>
+        <div style={{display:"flex",gap:6}}>
+          {["dashboard","beta-testers"].map(v=>(
+            <button key={v} onClick={()=>{setView(v);setSelected(null);}}
+              style={{background:view===v?"rgba(0,229,160,.1)":"none",color:view===v?C.accent:C.muted,border:view===v?`1px solid rgba(0,229,160,.2)`:"1px solid transparent",borderRadius:50,padding:"6px 14px",fontSize:12,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+              {v==="dashboard"?"📊 Dashboard":"👥 Beta Testers"}
+            </button>
+          ))}
+        </div>
+        <div style={{display:"flex",gap:8,alignItems:"center"}}>
+          <button onClick={refresh} style={{background:"rgba(255,255,255,.05)",border:`1px solid ${C.border}`,color:C.muted,borderRadius:50,padding:"6px 12px",fontSize:12,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>↻ Actualizar</button>
+          <button onClick={onLogout} style={{background:"none",border:"none",color:C.muted,fontSize:12,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Salir</button>
+        </div>
+      </div>
+
+      <div style={{maxWidth:980,margin:"0 auto",padding:"28px 20px"}}>
+
+        {/* DASHBOARD */}
+        {view==="dashboard" && (
+          <div style={{animation:"fadeUp .4s ease"}}>
+            <Tag>Resumen general</Tag>
+            <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:24,marginBottom:24}}>Tu beta en números</h2>
+
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:12,marginBottom:24}}>
+              {[
+                {n:subs.length,   l:"Beta testers",          c:C.accent},
+                {n:subs.filter(s=>s.status==="activo").length, l:"Activos",c:C.blue},
+                {n:avgScore,      l:"Score promedio",         c:C.purple},
+                {n:subs.filter(s=>s.status==="nuevo").length, l:"Por contactar",c:C.gold},
+              ].map((k,i)=>(
+                <div key={i} style={{...card,textAlign:"center"}}>
+                  <div style={{fontFamily:"'Playfair Display',serif",fontSize:38,fontWeight:700,color:k.c,lineHeight:1}}>{k.n}</div>
+                  <div style={{fontSize:11,color:C.muted,marginTop:6}}>{k.l}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:24}}>
+              <div style={card}>
+                <Tag>Por ocupación</Tag>
+                {["Emprendedor / dueño de negocio","Freelancer / independiente","Empleado en empresa","Estudiante","Otro"].map(occ=>{
+                  const count = subs.filter(s=>s.ocupacion===occ).length;
+                  const pct = subs.length ? Math.round(count/subs.length*100) : 0;
+                  return count>0 ? (
+                    <div key={occ} style={{marginBottom:10}}>
+                      <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}>
+                        <span style={{color:C.light}}>{occ.split(" /")[0]}</span>
+                        <span style={{color:C.accent,fontWeight:600}}>{count}</span>
+                      </div>
+                      <div style={{height:4,background:"rgba(255,255,255,.05)",borderRadius:4}}>
+                        <div style={{width:`${pct}%`,height:"100%",background:C.accent,borderRadius:4}}/>
+                      </div>
+                    </div>
+                  ) : null;
+                })}
+                {subs.length===0 && <div style={{color:C.muted,fontSize:13}}>Sin datos aún</div>}
+              </div>
+
+              <div style={card}>
+                <Tag>Score promedio por módulo</Tag>
+                {subs.length>0 ? MODULOS.map(m=>{
+                  const avg = Math.round(subs.reduce((a,s)=>a+(s[m.id]||5),0)/subs.length);
+                  return <ModBar key={m.id} icon={m.icon} label={m.label} value={avg} color={m.color}/>;
+                }) : <div style={{color:C.muted,fontSize:13}}>Sin datos aún</div>}
+              </div>
+            </div>
+
+            <div style={card}>
+              <Tag>Últimos registros</Tag>
+              {subs.length===0 ? (
+                <div style={{color:C.muted,fontSize:14,textAlign:"center",padding:"24px 0"}}>Aún no hay beta testers. Comparte el link de onboarding.</div>
+              ) : [...subs].reverse().slice(0,6).map(s=>(
+                <div key={s.id} onClick={()=>{setSelected(s);setNotas(s.notas||"");setView("beta-testers");}}
+                  style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 0",borderBottom:`1px solid ${C.border}`,cursor:"pointer"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:12}}>
+                    <div style={{width:36,height:36,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},${C.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:700,color:"#07090F"}}>
+                      {s.nombre[0].toUpperCase()}
+                    </div>
+                    <div>
+                      <div style={{fontSize:14,fontWeight:500}}>{s.nombre}</div>
+                      <div style={{fontSize:11,color:C.muted}}>{s.ciudad} · {s.fechaIngreso}</div>
+                    </div>
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",gap:12}}>
+                    <Badge status={s.status}/>
+                    <span style={{fontFamily:"'Playfair Display',serif",fontSize:18,color:C.accent,fontWeight:700}}>{s.score}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* BETA TESTERS */}
+        {view==="beta-testers" && (
+          <div style={{display:"grid",gridTemplateColumns:selected?"1fr 1.5fr":"1fr",gap:16,animation:"fadeUp .4s ease"}}>
+            <div>
+              <Tag>Beta Testers</Tag>
+              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:22,marginBottom:16}}>{subs.length} registrados</h2>
+              {subs.length===0 ? (
+                <div style={{...card,textAlign:"center",padding:32}}>
+                  <div style={{fontSize:32,marginBottom:12}}>📭</div>
+                  <div style={{color:C.muted,fontSize:14}}>Aún no hay beta testers.</div>
+                </div>
+              ) : [...subs].reverse().map(s=>(
+                <div key={s.id} onClick={()=>{setSelected(s);setNotas(s.notas||"");}}
+                  style={{...card,marginBottom:8,cursor:"pointer",borderColor:selected?.id===s.id?"rgba(0,229,160,.4)":C.border,transition:"border-color .2s"}}>
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      <div style={{width:40,height:40,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},${C.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:700,color:"#07090F",flexShrink:0}}>
+                        {s.nombre[0].toUpperCase()}
+                      </div>
+                      <div>
+                        <div style={{fontSize:14,fontWeight:500}}>{s.nombre}</div>
+                        <div style={{fontSize:11,color:C.muted}}>{s.ciudad} · {s.whatsapp}</div>
+                      </div>
+                    </div>
+                    <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}}>
+                      <Badge status={s.status}/>
+                      <span style={{fontFamily:"'Playfair Display',serif",fontSize:16,color:C.accent,fontWeight:700}}>{s.score}/100</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {selected && (
+              <div style={{animation:"fadeUp .3s ease"}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
+                  <Tag>Perfil completo</Tag>
+                  <button onClick={()=>setSelected(null)} style={{background:"none",border:"none",color:C.muted,fontSize:20,cursor:"pointer"}}>✕</button>
+                </div>
+
+                <div style={{...card,marginBottom:12,display:"flex",alignItems:"center",gap:16}}>
+                  <ScoreRing score={selected.score} size={80}/>
+                  <div style={{flex:1}}>
+                    <div style={{fontFamily:"'Playfair Display',serif",fontSize:20,marginBottom:2}}>{selected.nombre}</div>
+                    <div style={{fontSize:12,color:C.muted,marginBottom:10}}>{selected.ciudad} · {selected.ocupacion}</div>
+                    <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                      {Object.keys(STATUS).map(st=>(
+                        <button key={st} onClick={()=>updateStatus(selected.id,st)}
+                          style={{background:selected.status===st?STATUS[st].bg:"rgba(255,255,255,.04)",color:selected.status===st?STATUS[st].color:C.muted,border:`1px solid ${selected.status===st?STATUS[st].color+"44":C.border}`,borderRadius:50,padding:"4px 10px",fontSize:11,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all .2s"}}>
+                          {STATUS[st].label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{...card,marginBottom:12}}>
+                  <Tag>Scores por módulo</Tag>
+                  {MODULOS.map(m=><ModBar key={m.id} icon={m.icon} label={m.label} value={selected[m.id]||5} color={m.color}/>)}
+                </div>
+
+                <div style={{...card,marginBottom:12}}>
+                  <Tag>Respuestas clave</Tag>
+                  <div style={{marginBottom:10}}>
+                    <div style={{fontSize:11,color:C.muted,marginBottom:4}}>Mayor desafío</div>
+                    <div style={{fontSize:13,color:C.light,lineHeight:1.6,background:"rgba(255,255,255,.03)",borderRadius:10,padding:"10px 12px"}}>{selected.desafio}</div>
+                  </div>
+                  <div style={{marginBottom:12}}>
+                    <div style={{fontSize:11,color:C.muted,marginBottom:4}}>Lo que quiere de LifeOS</div>
+                    <div style={{fontSize:13,color:C.light,lineHeight:1.6,background:"rgba(255,255,255,.03)",borderRadius:10,padding:"10px 12px"}}>{selected.wish}</div>
+                  </div>
+                  <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+                    <div><div style={{fontSize:11,color:C.muted}}>Canal</div><div style={{fontSize:13,color:C.accent,fontWeight:500}}>{selected.canal}</div></div>
+                    <div><div style={{fontSize:11,color:C.muted}}>Ingresó</div><div style={{fontSize:13,color:C.light}}>{selected.fechaIngreso}</div></div>
+                  </div>
+                </div>
+
+                <div style={{...card,marginBottom:12}}>
+                  <Tag>Notas privadas</Tag>
+                  <textarea value={notas} onChange={e=>setNotas(e.target.value)} rows={3}
+                    placeholder="Observaciones, feedback, acuerdos con este beta tester..."
+                    style={{width:"100%",background:"rgba(255,255,255,.04)",border:`1px solid ${C.border}`,borderRadius:10,padding:"10px 12px",color:C.white,fontSize:13,outline:"none",resize:"vertical",marginBottom:10}}/>
+                  <button onClick={()=>saveNotas(selected.id)}
+                    style={{background:C.accent,color:"#07090F",border:"none",borderRadius:50,padding:"8px 20px",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+                    Guardar notas
+                  </button>
+                </div>
+
+                <div style={{...card,marginBottom:12,background:"rgba(37,211,102,.05)",borderColor:"rgba(37,211,102,.2)"}}>
+                  <div style={{fontSize:12,color:"#25D366",fontWeight:500,marginBottom:8}}>📱 Contacto directo</div>
+                  <a href={`https://wa.me/${selected.whatsapp.replace(/\D/g,"")}`} target="_blank"
+                    style={{display:"inline-block",background:"#25D366",color:"#fff",borderRadius:50,padding:"9px 20px",fontSize:13,fontWeight:600,textDecoration:"none"}}>
+                    Abrir WhatsApp →
+                  </a>
+                </div>
+
+                <button onClick={()=>deleteEntry(selected.id)}
+                  style={{background:"rgba(255,107,107,.08)",border:`1px solid rgba(255,107,107,.2)`,color:C.coral,borderRadius:50,padding:"8px 18px",fontSize:12,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+                  Eliminar registro
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      <Toast msg={toast}/>
+    </div>
+  );
 }
+
+// ═══════════════════════════════════════════════════════════
+// SUCCESS
+// ═══════════════════════════════════════════════════════════
+function SuccessScreen({ nombre }) {
+  return (
+    <div style={{minHeight:"100vh",background:C.bg,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+      <div style={{textAlign:"center",maxWidth:420,animation:"fadeUp .5s ease"}}>
+        <div style={{fontSize:64,marginBottom:20}}>🎉</div>
+        <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:28,marginBottom:12}}>
+          ¡Bienvenido/a, <em style={{color:C.accent}}>{nombre}</em>!
+        </h1>
+        <p style={{fontSize:15,color:C.light,lineHeight:1.7,fontWeight:300,marginBottom:28}}>
+          Tu perfil fue guardado. El próximo lunes recibirás tu primer score de vida. LifeOS ya está construyendo tu perfil.
+        </p>
+        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:20,padding:24,textAlign:"left"}}>
+          {["Este domingo recibirás tu primer check-in semanal","El lunes llega tu score de vida personalizado","Tienes acceso gratuito durante el primer mes completo"].map((item,i)=>(
+            <div key={i} style={{display:"flex",gap:10,marginBottom:10,fontSize:13,color:C.light}}>
+              <span style={{color:C.accent,fontWeight:700}}>→</span><span>{item}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// ROOT APP
+// ═══════════════════════════════════════════════════════════
+function App() {
+  const [mode, setMode] = useState("form");
+  const [adminAuth, setAdminAuth] = useState(false);
+  const [successName, setSuccessName] = useState(null);
+  const [adminKey, setAdminKey] = useState("");
+
+  return (
+    <>
+      {mode==="form" && !successName && <FormView onSuccess={n=>setSuccessName(n)}/>}
+      {mode==="form" && successName && <SuccessScreen nombre={successName}/>}
+      {mode==="admin" && !adminAuth && <AdminLogin onLogin={()=>setAdminAuth(true)}/>}
+      {mode==="admin" && adminAuth && <AdminPanel onLogout={()=>{setAdminAuth(false);setMode("form");}}/>}
+
+      {/* Admin access - campo discreto abajo derecha */}
+      {mode==="form" && !successName && (
+        <div style={{position:"fixed",bottom:16,right:16,zIndex:100}}>
+          <input type="password" placeholder="admin" value={adminKey}
+            onChange={e=>setAdminKey(e.target.value)}
+            onKeyDown={e=>{if(e.key==="Enter"&&adminKey===ADMIN_PASS){setMode("admin");setAdminKey("");}}}
+            style={{width:75,background:"rgba(14,20,32,.9)",border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 10px",color:C.muted,fontSize:11,outline:"none"}}/>
+        </div>
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>
 </html>
