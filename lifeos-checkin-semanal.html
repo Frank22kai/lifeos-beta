@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeOS — Check-in Semanal</title>
+<meta name="description" content="Tu check-in semanal de LifeOS. 5 preguntas, 2 minutos.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090F;--card:#0E1420;--border:rgba(255,255,255,.07);
+  --accent:#00E5A0;--purple:#A78BFA;--coral:#FF6B6B;
+  --gold:#FCD34D;--white:#F1EDE6;--muted:#6B7280;--light:#C9D1D9;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;padding-bottom:60px}
+input,textarea,select,button{font-family:'DM Sans',sans-serif}
+input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* NAV */
+.nav{background:rgba(7,9,15,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:700}
+.logo span{color:var(--accent)}
+.live{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+
+/* LAYOUT */
+.wrap{max-width:500px;margin:0 auto;padding:28px 18px}
+
+/* HERO */
+.hero{text-align:center;margin-bottom:28px;animation:fadeUp .5s ease}
+.hero-icon{font-size:52px;margin-bottom:14px;display:block;animation:float 3s ease-in-out infinite}
+.hero-title{font-family:'Playfair Display',serif;font-size:26px;line-height:1.2;margin-bottom:8px}
+.hero-title em{color:var(--accent);font-style:italic}
+.hero-sub{font-size:14px;color:var(--light);line-height:1.65;font-weight:300}
+.hero-time{display:inline-flex;align-items:center;gap:6px;background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.2);border-radius:50px;padding:4px 14px;font-size:11px;color:var(--accent);margin-top:12px;font-weight:500}
+
+/* PROGRESS */
+.progress-wrap{margin-bottom:20px}
+.progress-track{height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .4s ease}
+.progress-text{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px;margin-bottom:14px;animation:fadeUp .4s ease both}
+
+/* QUESTION */
+.q-num{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-weight:500;margin-bottom:6px}
+.q-text{font-family:'Playfair Display',serif;font-size:18px;line-height:1.3;margin-bottom:16px}
+.q-sub{font-size:12px;color:var(--muted);margin-bottom:14px;margin-top:-10px}
+
+/* INPUTS */
+.inp{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:11px 15px;color:var(--white);font-size:14px;outline:none;transition:border-color .2s}
+.inp:focus{border-color:rgba(0,229,160,.4)}
+.inp::placeholder{color:var(--muted)}
+textarea.inp{resize:none}
+select.inp option{background:#111827}
+
+/* EMOJI SCALE */
+.emoji-scale{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-bottom:8px}
+.emoji-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:8px 2px;text-align:center;cursor:pointer;transition:all .2s;font-size:13px;color:var(--muted);font-weight:600}
+.emoji-btn:hover{border-color:rgba(0,229,160,.3);color:var(--white)}
+.emoji-btn.selected{background:rgba(0,229,160,.12);border-color:rgba(0,229,160,.4);color:var(--accent);transform:scale(1.08)}
+.scale-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
+
+/* SLIDER */
+.slider-row{margin-bottom:16px}
+.slider-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.slider-label{font-size:13px;color:var(--light);display:flex;align-items:center;gap:6px}
+.slider-val{font-size:13px;font-weight:700;padding:2px 10px;border-radius:50px;min-width:36px;text-align:center}
+.slider-hints{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:3px}
+
+/* CHOICE */
+.choices{display:flex;flex-direction:column;gap:8px}
+.choice{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:12px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--light)}
+.choice:hover{border-color:rgba(0,229,160,.25);color:var(--white)}
+.choice.selected{background:rgba(0,229,160,.08);border-color:rgba(0,229,160,.35);color:var(--accent)}
+.choice-icon{font-size:18px;flex-shrink:0}
+.choice-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);margin-left:auto;flex-shrink:0;transition:all .2s}
+.choice.selected .choice-radio{border-color:var(--accent);background:var(--accent)}
+
+/* SLEEP PILLS */
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:50px;padding:8px 16px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--muted)}
+.pill:hover{color:var(--white);border-color:rgba(255,255,255,.2)}
+.pill.selected{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.4);color:var(--purple)}
+
+/* NAV BUTTONS */
+.nav-btns{display:flex;gap:10px;margin-top:8px}
+.btn-back{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--white);border-radius:50px;padding:13px;font-size:14px;cursor:pointer;transition:all .2s}
+.btn-next{flex:2;background:var(--accent);color:#07090F;border:none;border-radius:50px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-next:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,229,160,.25)}
+.btn-next:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-only{width:100%;background:var(--accent);color:#07090F;border:none;border-radius:50px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:6px}
+.btn-only:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,229,160,.25)}
+
+/* SUCCESS */
+.success-wrap{min-height:80vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.success-box{text-align:center;max-width:400px;animation:fadeUp .5s ease}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--accent);color:#07090F;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:600;z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);white-space:nowrap}
+#toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="logo">Life<span>OS</span></div>
+  <div class="live"><span class="live-dot"></span>Check-in semanal</div>
+</div>
+
+<!-- VIEW: FORM -->
+<div id="view-form">
+  <div class="wrap">
+
+    <!-- HERO -->
+    <div class="hero">
+      <span class="hero-icon">📋</span>
+      <h1 class="hero-title">Tu check-in de <em>esta semana</em></h1>
+      <p class="hero-sub">5 preguntas rápidas para que tu reporte del lunes sea lo más preciso posible.</p>
+      <div class="hero-time">⏱️ 2 minutos · Sin respuestas incorrectas</div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-wrap">
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="progress-text">
+        <span id="progress-label">Pregunta 1 de 5</span>
+        <span id="progress-pct">0%</span>
+      </div>
+    </div>
+
+    <!-- Q1: GENERAL -->
+    <div class="card" id="q1" style="animation-delay:.1s">
+      <div class="q-num">Pregunta 1 de 5</div>
+      <div class="q-text">¿Cómo estuvo tu semana en general?</div>
+      <div class="q-sub">Del 1 al 10 — donde 1 es muy mal y 10 es excelente</div>
+      <div class="emoji-scale" id="scale-general"></div>
+      <div class="scale-labels"><span>😩 Muy mal</span><span>🚀 Excelente</span></div>
+    </div>
+
+    <!-- Q2: SCORES -->
+    <div class="card" id="q2" style="animation-delay:.15s">
+      <div class="q-num">Pregunta 2 de 5</div>
+      <div class="q-text">¿Cómo te fue en cada área?</div>
+      <div class="q-sub">Mueve cada barra según cómo te sientes</div>
+
+      <div class="slider-row">
+        <div class="slider-top">
+          <span class="slider-label">💰 Finanzas</span>
+          <span class="slider-val" id="sv-finanzas" style="background:rgba(0,229,160,.1);color:#00E5A0">5</span>
+        </div>
+        <input type="range" min="1" max="10" value="5" oninput="updS('finanzas',this.value,'#00E5A0')">
+        <div class="slider-hints"><span>Mal</span><span>Bien</span></div>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-top">
+          <span class="slider-label">🏃 Salud</span>
+          <span class="slider-val" id="sv-salud" style="background:rgba(255,107,107,.1);color:#FF6B6B">5</span>
+        </div>
+        <input type="range" min="1" max="10" value="5" oninput="updS('salud',this.value,'#FF6B6B')">
+        <div class="slider-hints"><span>Mal</span><span>Bien</span></div>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-top">
+          <span class="slider-label">🧘 Mental</span>
+          <span class="slider-val" id="sv-mental" style="background:rgba(167,139,250,.1);color:#A78BFA">5</span>
+        </div>
+        <input type="range" min="1" max="10" value="5" oninput="updS('mental',this.value,'#A78BFA')">
+        <div class="slider-hints"><span>Agotado</span><span>Tranquilo</span></div>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-top">
+          <span class="slider-label">🎯 Productividad</span>
+          <span class="slider-val" id="sv-trabajo" style="background:rgba(252,211,77,.1);color:#FCD34D">5</span>
+        </div>
+        <input type="range" min="1" max="10" value="5" oninput="updS('trabajo',this.value,'#FCD34D')">
+        <div class="slider-hints"><span>Estancado</span><span>Volando</span></div>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-top">
+          <span class="slider-label">🌱 Hábitos</span>
+          <span class="slider-val" id="sv-habitos" style="background:rgba(52,211,153,.1);color:#34D399">5</span>
+        </div>
+        <input type="range" min="1" max="10" value="5" oninput="updS('habitos',this.value,'#34D399')">
+        <div class="slider-hints"><span>Ninguno</span><span>Todos</span></div>
+      </div>
+    </div>
+
+    <!-- Q3: LOGRO + ESTRES -->
+    <div class="card" id="q3" style="animation-delay:.2s">
+      <div class="q-num">Pregunta 3 de 5</div>
+      <div class="q-text">Lo mejor y lo más difícil</div>
+
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:13px;color:var(--light);margin-bottom:6px">🏆 ¿Cuál fue tu mayor logro esta semana?</label>
+        <textarea class="inp" id="q-logro" rows="2" placeholder="Puede ser pequeño o grande — todo cuenta..."></textarea>
+      </div>
+
+      <div>
+        <label style="display:block;font-size:13px;color:var(--light);margin-bottom:6px">😤 ¿Qué te generó más estrés o preocupación?</label>
+        <textarea class="inp" id="q-estres" rows="2" placeholder="Trabajo, dinero, relaciones, salud..."></textarea>
+      </div>
+    </div>
+
+    <!-- Q4: SLEEP -->
+    <div class="card" id="q4" style="animation-delay:.25s">
+      <div class="q-num">Pregunta 4 de 5</div>
+      <div class="q-text">¿Cuánto dormiste en promedio esta semana?</div>
+      <div class="pills" id="sleep-pills">
+        <div class="pill" onclick="selectPill(this,'sueno','4')">😵 -5h</div>
+        <div class="pill" onclick="selectPill(this,'sueno','5.5')">😪 5-6h</div>
+        <div class="pill" onclick="selectPill(this,'sueno','6.5')">😐 6-7h</div>
+        <div class="pill" onclick="selectPill(this,'sueno','7.5')">😊 7-8h</div>
+        <div class="pill" onclick="selectPill(this,'sueno','8.5')">😴 +8h</div>
+      </div>
+    </div>
+
+    <!-- Q5: OPEN -->
+    <div class="card" id="q5" style="animation-delay:.3s">
+      <div class="q-num">Pregunta 5 de 5</div>
+      <div class="q-text">¿Algo más que quieras contarle a tu copiloto?</div>
+      <div class="q-sub">Contexto extra que ayude a personalizar mejor tu reporte. Opcional.</div>
+      <textarea class="inp" id="q-extra" rows="3" placeholder="Ej: esta semana tuve una reunión importante, empecé a hacer dieta, me sentí solo, tuve una discusión..."></textarea>
+
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+        <label style="display:block;font-size:13px;color:var(--light);margin-bottom:6px">📱 Tu nombre (para personalizar el reporte)</label>
+        <input class="inp" id="q-nombre" placeholder="¿Cómo te llamamos?">
+      </div>
+    </div>
+
+    <!-- SUBMIT -->
+    <button class="btn-only" id="submit-btn" onclick="enviarCheckin()">
+      Enviar mi check-in →
+    </button>
+
+    <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--muted)">
+      Tu respuesta llega directamente a tu copiloto. El reporte llega el lunes. 🧠
+    </div>
+
+  </div>
+</div>
+
+<!-- VIEW: SUCCESS -->
+<div id="view-success" style="display:none">
+  <div class="success-wrap">
+    <div class="success-box">
+      <div style="font-size:64px;margin-bottom:18px;animation:float 3s ease-in-out infinite;display:block">🎉</div>
+      <h1 style="font-family:'Playfair Display',serif;font-size:26px;margin-bottom:10px">
+        ¡Listo, <em id="success-name" style="color:var(--accent)"></em>!
+      </h1>
+      <p style="font-size:14px;color:var(--light);line-height:1.7;font-weight:300;margin-bottom:24px">
+        Tu check-in fue enviado. Tu copiloto ya está procesando la información para generar tu reporte del lunes.
+      </p>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;text-align:left;margin-bottom:20px">
+        <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-weight:500;margin-bottom:12px">Resumen de tu check-in</div>
+        <div id="success-summary" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+
+      <div style="background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.2);border-radius:14px;padding:14px;font-size:13px;color:var(--light);line-height:1.6">
+        📅 Tu reporte personalizado llega el <strong style="color:var(--white)">lunes en la mañana</strong> por WhatsApp.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzhNaYBe79EjKaxysbhKhQE4OU3oQSt1dcb-uxjLboVrpZsWN-VBY8TDPtESkPYYCat/exec";
+
+// State
+const state = { general: null, sueno: null };
+
+// ── EMOJI SCALE ───────────────────────────────────────────
+function buildScale(){
+  const emojis = ["😩","😟","😕","😐","🙂","😊","😃","😄","🤩","🚀"];
+  document.getElementById("scale-general").innerHTML = [1,2,3,4,5,6,7,8,9,10].map((n,i)=>`
+    <div class="emoji-btn" onclick="selectScale(this,${n})" title="${n}">
+      <div>${emojis[i]}</div>
+      <div style="font-size:10px;margin-top:2px">${n}</div>
+    </div>`).join("");
+}
+
+function selectScale(el, val){
+  document.querySelectorAll(".emoji-btn").forEach(b=>b.classList.remove("selected"));
+  el.classList.add("selected");
+  state.general = val;
+  updateProgress();
+}
+
+function selectPill(el, key, val){
+  document.querySelectorAll("#sleep-pills .pill").forEach(p=>p.classList.remove("selected"));
+  el.classList.add("selected");
+  state[key] = val;
+  updateProgress();
+}
+
+function updS(id, val, color){
+  document.getElementById("sv-"+id).textContent = val;
+  updateProgress();
+}
+
+function updateProgress(){
+  const filled = [
+    state.general,
+    state.sueno,
+    document.getElementById("q-logro").value.trim(),
+    document.getElementById("q-nombre").value.trim(),
+    true // q5 is optional
+  ].filter(Boolean).length;
+  const pct = Math.round((filled/5)*100);
+  document.getElementById("progress-fill").style.width = pct+"%";
+  document.getElementById("progress-pct").textContent = pct+"%";
+  const q = Math.min(filled+1,5);
+  document.getElementById("progress-label").textContent = `Pregunta ${q} de 5`;
+}
+
+function getSlider(id){ return +document.getElementById(`input[oninput*="${id}"]`)?.value||5; }
+function getSliderVal(id){
+  const inputs = document.querySelectorAll("input[type=range]");
+  for(const inp of inputs){ if(inp.getAttribute("oninput")?.includes(id)) return +inp.value; }
+  return 5;
+}
+
+async function enviarCheckin(){
+  const nombre = document.getElementById("q-nombre").value.trim();
+  const logro  = document.getElementById("q-logro").value.trim();
+
+  if(!nombre){ toast("⚠️ Escribe tu nombre para personalizar el reporte"); return; }
+  if(!logro){  toast("⚠️ Cuéntanos tu mayor logro de la semana"); return; }
+  if(!state.general){ toast("⚠️ Selecciona cómo estuvo tu semana (1-10)"); return; }
+
+  const btn = document.getElementById("submit-btn");
+  btn.disabled=true; btn.textContent="Enviando...";
+
+  const scores = {
+    finanzas: getSliderVal("finanzas"),
+    salud:    getSliderVal("salud"),
+    mental:   getSliderVal("mental"),
+    trabajo:  getSliderVal("trabajo"),
+    habitos:  getSliderVal("habitos"),
+  };
+
+  const data = {
+    action: "checkin",
+    nombre,
+    semana_general: state.general,
+    ...scores,
+    logro,
+    estres:  document.getElementById("q-estres").value.trim()||"No especificado",
+    sueno:   state.sueno||"No especificado",
+    extra:   document.getElementById("q-extra").value.trim()||"",
+    fecha:   new Date().toLocaleDateString("es-CO"),
+    hora:    new Date().toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit"}),
+    score_auto: Math.round((scores.finanzas+scores.salud+scores.mental+scores.trabajo+scores.habitos)/5*10),
+  };
+
+  try{
+    // Enviar via GET con parámetros en URL (funciona con no-cors)
+    const qs = Object.keys(data).map(k=>
+      encodeURIComponent(k)+"="+encodeURIComponent(data[k])
+    ).join("&");
+    await fetch(SHEETS_URL+"?"+qs, {mode:"no-cors"});
+  }catch(e){ console.warn("Sheets:",e); }
+
+  // Show success
+  document.getElementById("success-name").textContent = nombre;
+  const MODS=[
+    {icon:"💰",label:"Finanzas",id:"finanzas",color:"#00E5A0"},
+    {icon:"🏃",label:"Salud",id:"salud",color:"#FF6B6B"},
+    {icon:"🧘",label:"Mental",id:"mental",color:"#A78BFA"},
+    {icon:"🎯",label:"Productividad",id:"trabajo",color:"#FCD34D"},
+    {icon:"🌱",label:"Hábitos",id:"habitos",color:"#34D399"},
+  ];
+  document.getElementById("success-summary").innerHTML = [
+    `<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--light)">📊 Semana en general</span><span style="font-weight:600;color:var(--accent)">${state.general}/10</span></div>`,
+    ...MODS.map(m=>`<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--light)">${m.icon} ${m.label}</span><span style="font-weight:600;color:${m.color}">${scores[m.id]}/10</span></div>`),
+    `<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--light)">😴 Sueño</span><span style="color:var(--purple);font-weight:600">${state.sueno?state.sueno+"h":"No indicado"}</span></div>`,
+    `<div style="padding-top:8px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)">🏆 ${logro}</div>`,
+  ].join("");
+
+  document.getElementById("view-form").style.display="none";
+  document.getElementById("view-success").style.display="block";
+  window.scrollTo({top:0,behavior:"smooth"});
+  btn.disabled=false; btn.textContent="Enviar mi check-in →";
+}
+
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),3000);
+}
+
+// ── LISTEN CHANGES ─────────────────────────────────────────
+document.querySelectorAll("textarea, input[type=text]").forEach(el=>{
+  el.addEventListener("input", updateProgress);
+});
+
+// ── INIT ─────────────────────────────────────────────────
+buildScale();
+
+// Set current week date
+const now = new Date();
+const days=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+const months=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+</script>
+</body>
+</html>
